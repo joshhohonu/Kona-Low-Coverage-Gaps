@@ -1,0 +1,25 @@
+name: Copy HTML to index.html
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  copy-file:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Download repository
+        uses: actions/checkout@v4
+
+      - name: Copy your HTML file
+        run: cp Kona_Low_Coverage_Gaps.html index.html
+
+      - name: Save the new file
+        run: |
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+          git add index.html
+          git diff --cached --quiet || git commit -m "Update index.html"
+          git push
