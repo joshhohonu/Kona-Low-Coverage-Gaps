@@ -68,6 +68,13 @@
   .conf-key-row { display:flex; align-items:center; gap:8px; flex-wrap:wrap; margin-top:10px; font-size:11.5px; }
   .conf-key-label { color:#888; font-weight:600; margin-right:2px; }
   .conf-key-sep { color:#aaa; font-size:10px; }
+  .method-box { background:#f9f7ff; border:1px solid #e8e2f5; border-radius:8px; padding:0; margin-top:12px; font-size:12px; color:#444; }
+  .method-box summary { padding:10px 16px; cursor:pointer; font-weight:600; color:#5b21b6; list-style:none; display:flex; align-items:center; gap:6px; user-select:none; }
+  .method-box summary::-webkit-details-marker { display:none; }
+  .method-box summary::before { content:'ℹ'; font-style:normal; font-size:13px; }
+  .method-box summary::after { content:'▾'; font-size:10px; margin-left:auto; color:#999; transition:transform 0.15s; }
+  .method-box[open] summary::after { transform:rotate(-180deg); }
+  .method-box-body { padding:0 16px 14px; line-height:1.6; border-top:1px solid #e8e2f5; margin-top:0; padding-top:12px; }
 </style>
 </head>
 <body>
@@ -84,12 +91,12 @@
     <span class="conf-key-label">Location precision:</span>
     <span class="conf-pill" style="background:#dcfce7;color:#14532d">Precise</span>
     <span class="conf-key-sep">exact address</span>
-    <span class="conf-pill" style="background:#bbf7d0;color:#166534">Good</span>
-    <span class="conf-key-sep">street-level</span>
-    <span class="conf-pill" style="background:#fef9c3;color:#854d0e">Street</span>
-    <span class="conf-key-sep">road / intersection</span>
-    <span class="conf-pill" style="background:#ffedd5;color:#c2410c">Area</span>
+    <span class="conf-pill" style="background:#bbf7d0;color:#166534">Street</span>
+    <span class="conf-key-sep">road or intersection</span>
+    <span class="conf-pill" style="background:#fef9c3;color:#854d0e">Area</span>
     <span class="conf-key-sep">neighborhood or town</span>
+    <span class="conf-pill" style="background:#ffedd5;color:#c2410c">Unverified</span>
+    <span class="conf-key-sep">coordinates not geocoded</span>
   </div>
 </header>
 <nav>
@@ -105,6 +112,14 @@
   <span class="threshold-val"><span id="threshold-display">3.1</span> mi</span>
   <span class="threshold-hint">Events farther than this from any gauge are flagged as coverage gaps</span>
 </div>
+<details class="method-box">
+  <summary>How distances are estimated</summary>
+  <div class="method-box-body">
+    <p><strong>Step 1 — Geocoding:</strong> Each event location (e.g., <em>"Likelike Hwy townbound from Kahekili Hwy"</em>) is submitted to the Google Maps Geocoding API, which returns the best-matching latitude/longitude. Google also returns an accuracy type — <em>Rooftop</em> (exact address), <em>Range Interpolated</em> (address estimated along a road), <em>Geometric Center</em> (center point of a road segment or intersection), or <em>Approximate</em> (neighborhood or town centroid). A small number of coordinates were manually confirmed by Hohonu field personnel.</p>
+    <p style="margin-top:8px"><strong>Step 2 — Distance:</strong> The straight-line (great-circle) distance from each geocoded event to every USGS stream gauge, NOAA tide station, and Hohonu sensor in Hawaiʻi is calculated using the <a href="https://en.wikipedia.org/wiki/Haversine_formula" target="_blank">Haversine formula</a>. The shortest of those distances is recorded as the estimated distance shown here.</p>
+    <p style="margin-top:8px"><strong>Limitations:</strong> Straight-line distance does not account for topography, stream routing, or road layout. An event 0.5 miles from a gauge as the crow flies may be separated by a ridge or in a different watershed. Distances should be interpreted as rough proximity estimates, not hydrological connectivity. The <em>Confidence</em> column reflects geocoding precision only — even a <em>Precise</em> geocode carries distance uncertainty if the original report was vague.</p>
+  </div>
+</details>
 <div id="stats">
   <div class="stat-grid">
     <div class="stat-card"><div class="stat-num">151</div><div class="stat-label">Reported Events</div></div>
@@ -177,7 +192,7 @@
   <td><span class="src-badge" style="background:#f3f4f6;color:#374151">News</span> Hawaii News Now</td>
   <td><span class="gauge-type-tag" style="color:#1d5fa8">USGS</span><br><span class="gauge-id">USGS-16241600</span><br><small style="color:#666">Manoa Stream at Woodlawn Drive, Oahu</small></td>
   <td class="dist-cell"><strong style="font-weight:700">~0.6 mi</strong></td>
-  <td style="text-align:center"><span class="conf-pill" style="background:#ffedd5;color:#c2410c">Area</span></td>
+  <td style="text-align:center"><span class="conf-pill" style="background:#fef9c3;color:#854d0e">Area</span></td>
 </tr>
 <tr data-storm="KL2" data-island="Oahu" data-dist="0.106" data-gap="0">
   <td><span class="pill pill-kl2">KL2</span></td>
@@ -221,7 +236,7 @@
   <td><span class="src-badge" style="background:#d1fae5;color:#065f46">311</span> Honolulu 311 Service Request</td>
   <td><span class="gauge-type-tag" style="color:#1d5fa8">USGS</span><br><span class="gauge-id">USGS-16238500</span><br><small style="color:#666">Waihi Stream at Honolulu, Oahu</small></td>
   <td class="dist-cell"><strong style="font-weight:700">~0.4 mi</strong></td>
-  <td style="text-align:center"><span class="conf-pill" style="background:#fef9c3;color:#854d0e">Street</span></td>
+  <td style="text-align:center"><span class="conf-pill" style="background:#bbf7d0;color:#166534">Street</span></td>
 </tr>
 <tr data-storm="KL2" data-island="Oahu" data-dist="4.294" data-gap="1" class="gap-row">
   <td><span class="pill pill-kl2">KL2</span></td>
@@ -232,7 +247,7 @@
   <td><span class="src-badge" style="background:#e0f2fe;color:#0369a1">NWS</span> NWS Local Storm Report (PHFO)</td>
   <td><span class="gauge-type-tag" style="color:#1d5fa8">USGS</span><br><span class="gauge-id">USGS-16304200</span><br><small style="color:#666">Kaluanui Stream nr Punaluu, Oahu</small></td>
   <td class="dist-cell"><strong style="color:#FF725D;font-weight:700">~4.3 mi</strong></td>
-  <td style="text-align:center"><span class="conf-pill" style="background:#ffedd5;color:#c2410c">Area</span></td>
+  <td style="text-align:center"><span class="conf-pill" style="background:#fef9c3;color:#854d0e">Area</span></td>
 </tr>
 <tr data-storm="KL2" data-island="Hawaii" data-dist="0.364" data-gap="0">
   <td><span class="pill pill-kl2">KL2</span></td>
@@ -243,7 +258,7 @@
   <td><span class="src-badge" style="background:#e0f2fe;color:#0369a1">NWS</span> NWS Local Storm Report (PHFO)</td>
   <td><span class="gauge-type-tag" style="color:#1d5fa8">USGS</span><br><span class="gauge-id">USGS-16770500</span><br><small style="color:#666">Paauau Gulch at Pahala</small></td>
   <td class="dist-cell"><strong style="font-weight:700">~0.4 mi</strong></td>
-  <td style="text-align:center"><span class="conf-pill" style="background:#ffedd5;color:#c2410c">Area</span></td>
+  <td style="text-align:center"><span class="conf-pill" style="background:#fef9c3;color:#854d0e">Area</span></td>
 </tr>
 <tr data-storm="KL2" data-island="Oahu" data-dist="0.045" data-gap="0">
   <td><span class="pill pill-kl2">KL2</span></td>
@@ -265,7 +280,7 @@
   <td><span class="src-badge" style="background:#e0f2fe;color:#0369a1">NWS</span> NWS Local Storm Report (PHFO)</td>
   <td><span class="gauge-type-tag" style="color:#1d5fa8">USGS</span><br><span class="gauge-id">USGS-16770500</span><br><small style="color:#666">Paauau Gulch at Pahala</small></td>
   <td class="dist-cell"><strong style="font-weight:700">~0.4 mi</strong></td>
-  <td style="text-align:center"><span class="conf-pill" style="background:#ffedd5;color:#c2410c">Area</span></td>
+  <td style="text-align:center"><span class="conf-pill" style="background:#fef9c3;color:#854d0e">Area</span></td>
 </tr>
 <tr data-storm="KL2" data-island="Hawaii" data-dist="0.5" data-gap="0">
   <td><span class="pill pill-kl2">KL2</span></td>
@@ -276,7 +291,7 @@
   <td><span class="src-badge" style="background:#e0f2fe;color:#0369a1">NWS</span> NWS Local Storm Report (PHFO)</td>
   <td><span class="gauge-type-tag" style="color:#1d5fa8">USGS</span><br><span class="gauge-id">USGS-16717000</span><br><small style="color:#666">Wailuku River at Hilo</small></td>
   <td class="dist-cell"><strong style="font-weight:700">~0.5 mi</strong></td>
-  <td style="text-align:center"><span class="conf-pill" style="background:#ffedd5;color:#c2410c">Area</span></td>
+  <td style="text-align:center"><span class="conf-pill" style="background:#fef9c3;color:#854d0e">Area</span></td>
 </tr>
 <tr data-storm="KL2" data-island="Hawaii" data-dist="4.774" data-gap="1" class="gap-row">
   <td><span class="pill pill-kl2">KL2</span></td>
@@ -287,7 +302,7 @@
   <td><span class="src-badge" style="background:#e0f2fe;color:#0369a1">NWS</span> NWS Local Storm Report (PHFO)</td>
   <td><span class="gauge-type-tag" style="color:#1d5fa8">USGS</span><br><span class="gauge-id">USGS-16701800</span><br><small style="color:#666">Wailuku River nr Kaumana</small></td>
   <td class="dist-cell"><strong style="color:#FF725D;font-weight:700">~4.8 mi</strong></td>
-  <td style="text-align:center"><span class="conf-pill" style="background:#ffedd5;color:#c2410c">Area</span></td>
+  <td style="text-align:center"><span class="conf-pill" style="background:#fef9c3;color:#854d0e">Area</span></td>
 </tr>
 <tr data-storm="KL2" data-island="Oahu" data-dist="0.611" data-gap="0">
   <td><span class="pill pill-kl2">KL2</span></td>
@@ -298,7 +313,7 @@
   <td><span class="src-badge" style="background:#e0f2fe;color:#0369a1">NWS</span> NWS Local Storm Report (PHFO)</td>
   <td><span class="gauge-type-tag" style="color:#1d5fa8">USGS</span><br><span class="gauge-id">USGS-16241600</span><br><small style="color:#666">Manoa Stream at Woodlawn Drive, Oahu</small></td>
   <td class="dist-cell"><strong style="font-weight:700">~0.6 mi</strong></td>
-  <td style="text-align:center"><span class="conf-pill" style="background:#ffedd5;color:#c2410c">Area</span></td>
+  <td style="text-align:center"><span class="conf-pill" style="background:#fef9c3;color:#854d0e">Area</span></td>
 </tr>
 <tr data-storm="KL2" data-island="Oahu" data-dist="0.528" data-gap="0">
   <td><span class="pill pill-kl2">KL2</span></td>
@@ -320,7 +335,7 @@
   <td><span class="src-badge" style="background:#e0f2fe;color:#0369a1">NWS</span> NWS Local Storm Report (PHFO)</td>
   <td><span class="gauge-type-tag" style="color:#0f8a5f">NOAA</span><br><span class="gauge-id">NOAA-1615680</span><br><small style="color:#666">Kahului, Kahului Harbor</small></td>
   <td class="dist-cell"><strong style="font-weight:700">~1.1 mi</strong></td>
-  <td style="text-align:center"><span class="conf-pill" style="background:#fef9c3;color:#854d0e">Street</span></td>
+  <td style="text-align:center"><span class="conf-pill" style="background:#bbf7d0;color:#166534">Street</span></td>
 </tr>
 <tr data-storm="KL2" data-island="Molokai" data-dist="0.75" data-gap="0">
   <td><span class="pill pill-kl2">KL2</span></td>
@@ -331,7 +346,7 @@
   <td><span class="src-badge" style="background:#e0f2fe;color:#0369a1">NWS</span> NWS Local Storm Report (PHFO)</td>
   <td><span class="gauge-type-tag" style="color:#7611FF">Hohonu</span><br><span class="gauge-id">hohonu-112</span><br><small style="color:#666">Keawanui Loko Iʻa</small></td>
   <td class="dist-cell"><strong style="font-weight:700">~0.8 mi</strong></td>
-  <td style="text-align:center"><span class="conf-pill" style="background:#fef9c3;color:#854d0e">Street</span></td>
+  <td style="text-align:center"><span class="conf-pill" style="background:#bbf7d0;color:#166534">Street</span></td>
 </tr>
 <tr data-storm="KL2" data-island="Molokai" data-dist="1.905" data-gap="0">
   <td><span class="pill pill-kl2">KL2</span></td>
@@ -342,7 +357,7 @@
   <td><span class="src-badge" style="background:#e0f2fe;color:#0369a1">NWS</span> NWS Local Storm Report (PHFO)</td>
   <td><span class="gauge-type-tag" style="color:#1d5fa8">USGS</span><br><span class="gauge-id">USGS-16415600</span><br><small style="color:#666">Kawela Gulch near Moku, Molokai</small></td>
   <td class="dist-cell"><strong style="font-weight:700">~1.9 mi</strong></td>
-  <td style="text-align:center"><span class="conf-pill" style="background:#fef9c3;color:#854d0e">Street</span></td>
+  <td style="text-align:center"><span class="conf-pill" style="background:#bbf7d0;color:#166534">Street</span></td>
 </tr>
 <tr data-storm="KL2" data-island="Molokai" data-dist="0.75" data-gap="0">
   <td><span class="pill pill-kl2">KL2</span></td>
@@ -353,7 +368,7 @@
   <td><span class="src-badge" style="background:#fef3c7;color:#92400e">HDOT</span> HIDOT</td>
   <td><span class="gauge-type-tag" style="color:#7611FF">Hohonu</span><br><span class="gauge-id">hohonu-112</span><br><small style="color:#666">Keawanui Loko Iʻa</small></td>
   <td class="dist-cell"><strong style="font-weight:700">~0.8 mi</strong></td>
-  <td style="text-align:center"><span class="conf-pill" style="background:#fef9c3;color:#854d0e">Street</span></td>
+  <td style="text-align:center"><span class="conf-pill" style="background:#bbf7d0;color:#166534">Street</span></td>
 </tr>
 <tr data-storm="KL2" data-island="Oahu" data-dist="1.519" data-gap="0">
   <td><span class="pill pill-kl2">KL2</span></td>
@@ -364,7 +379,7 @@
   <td><span class="src-badge" style="background:#d1fae5;color:#065f46">311</span> Honolulu 311 Service Request</td>
   <td><span class="gauge-type-tag" style="color:#0f8a5f">NOAA</span><br><span class="gauge-id">NOAA-1612340</span><br><small style="color:#666">Honolulu</small></td>
   <td class="dist-cell"><strong style="font-weight:700">~1.5 mi</strong></td>
-  <td style="text-align:center"><span class="conf-pill" style="background:#fef9c3;color:#854d0e">Street</span></td>
+  <td style="text-align:center"><span class="conf-pill" style="background:#bbf7d0;color:#166534">Street</span></td>
 </tr>
 <tr data-storm="KL2" data-island="Maui" data-dist="0.788" data-gap="0">
   <td><span class="pill pill-kl2">KL2</span></td>
@@ -375,7 +390,7 @@
   <td><span class="src-badge" style="background:#e0f2fe;color:#0369a1">NWS</span> NWS Local Storm Report (PHFO)</td>
   <td><span class="gauge-type-tag" style="color:#0f8a5f">NOAA</span><br><span class="gauge-id">NOAA-1615680</span><br><small style="color:#666">Kahului, Kahului Harbor</small></td>
   <td class="dist-cell"><strong style="font-weight:700">~0.8 mi</strong></td>
-  <td style="text-align:center"><span class="conf-pill" style="background:#fef9c3;color:#854d0e">Street</span></td>
+  <td style="text-align:center"><span class="conf-pill" style="background:#bbf7d0;color:#166534">Street</span></td>
 </tr>
 <tr data-storm="KL2" data-island="Maui" data-dist="1.427" data-gap="0">
   <td><span class="pill pill-kl2">KL2</span></td>
@@ -386,7 +401,7 @@
   <td><span class="src-badge" style="background:#e0f2fe;color:#0369a1">NWS</span> NWS Local Storm Report (PHFO)</td>
   <td><span class="gauge-type-tag" style="color:#1d5fa8">USGS</span><br><span class="gauge-id">USGS-16638500</span><br><small style="color:#666">Kahoma Stream at Lahaina</small></td>
   <td class="dist-cell"><strong style="font-weight:700">~1.4 mi</strong></td>
-  <td style="text-align:center"><span class="conf-pill" style="background:#fef9c3;color:#854d0e">Street</span></td>
+  <td style="text-align:center"><span class="conf-pill" style="background:#bbf7d0;color:#166534">Street</span></td>
 </tr>
 <tr data-storm="KL2" data-island="Maui" data-dist="0.911" data-gap="0">
   <td><span class="pill pill-kl2">KL2</span></td>
@@ -397,7 +412,7 @@
   <td><span class="src-badge" style="background:#e0f2fe;color:#0369a1">NWS</span> NWS Local Storm Report (PHFO)</td>
   <td><span class="gauge-type-tag" style="color:#1d5fa8">USGS</span><br><span class="gauge-id">USGS-16638500</span><br><small style="color:#666">Kahoma Stream at Lahaina</small></td>
   <td class="dist-cell"><strong style="font-weight:700">~0.9 mi</strong></td>
-  <td style="text-align:center"><span class="conf-pill" style="background:#fef9c3;color:#854d0e">Street</span></td>
+  <td style="text-align:center"><span class="conf-pill" style="background:#bbf7d0;color:#166534">Street</span></td>
 </tr>
 <tr data-storm="KL2" data-island="Hawaii" data-dist="8.721" data-gap="1" class="gap-row">
   <td><span class="pill pill-kl2">KL2</span></td>
@@ -419,7 +434,7 @@
   <td><span class="src-badge" style="background:#f3f4f6;color:#374151">News</span> Maui Now</td>
   <td><span class="gauge-type-tag" style="color:#0f8a5f">NOAA</span><br><span class="gauge-id">NOAA-1615680</span><br><small style="color:#666">Kahului, Kahului Harbor</small></td>
   <td class="dist-cell"><strong style="font-weight:700">~0.5 mi</strong></td>
-  <td style="text-align:center"><span class="conf-pill" style="background:#fef9c3;color:#854d0e">Street</span></td>
+  <td style="text-align:center"><span class="conf-pill" style="background:#bbf7d0;color:#166534">Street</span></td>
 </tr>
 <tr data-storm="KL2" data-island="Maui" data-dist="0.756" data-gap="0">
   <td><span class="pill pill-kl2">KL2</span></td>
@@ -430,7 +445,7 @@
   <td><span class="src-badge" style="background:#f3f4f6;color:#374151">News</span> Maui Now</td>
   <td><span class="gauge-type-tag" style="color:#0f8a5f">NOAA</span><br><span class="gauge-id">NOAA-1615680</span><br><small style="color:#666">Kahului, Kahului Harbor</small></td>
   <td class="dist-cell"><strong style="font-weight:700">~0.8 mi</strong></td>
-  <td style="text-align:center"><span class="conf-pill" style="background:#fef9c3;color:#854d0e">Street</span></td>
+  <td style="text-align:center"><span class="conf-pill" style="background:#bbf7d0;color:#166534">Street</span></td>
 </tr>
 <tr data-storm="KL2" data-island="Maui" data-dist="2.321" data-gap="0">
   <td><span class="pill pill-kl2">KL2</span></td>
@@ -441,7 +456,7 @@
   <td><span class="src-badge" style="background:#f3f4f6;color:#374151">News</span> KITV</td>
   <td><span class="gauge-type-tag" style="color:#0f8a5f">NOAA</span><br><span class="gauge-id">NOAA-1615680</span><br><small style="color:#666">Kahului, Kahului Harbor</small></td>
   <td class="dist-cell"><strong style="font-weight:700">~2.3 mi</strong></td>
-  <td style="text-align:center"><span class="conf-pill" style="background:#fef9c3;color:#854d0e">Street</span></td>
+  <td style="text-align:center"><span class="conf-pill" style="background:#bbf7d0;color:#166534">Street</span></td>
 </tr>
 <tr data-storm="KL2" data-island="Oahu" data-dist="1.008" data-gap="0">
   <td><span class="pill pill-kl2">KL2</span></td>
@@ -452,7 +467,7 @@
   <td><span class="src-badge" style="background:#d1fae5;color:#065f46">311</span> Honolulu 311 Service Request</td>
   <td><span class="gauge-type-tag" style="color:#1d5fa8">USGS</span><br><span class="gauge-id">USGS-16247100</span><br><small style="color:#666">Manoa-Palolo Drainage Canal at Moiliili, Oahu</small></td>
   <td class="dist-cell"><strong style="font-weight:700">~1.0 mi</strong></td>
-  <td style="text-align:center"><span class="conf-pill" style="background:#bbf7d0;color:#166534">Good</span></td>
+  <td style="text-align:center"><span class="conf-pill" style="background:#bbf7d0;color:#166534">Street</span></td>
 </tr>
 <tr data-storm="KL2" data-island="Maui" data-dist="1.964" data-gap="0">
   <td><span class="pill pill-kl2">KL2</span></td>
@@ -463,7 +478,7 @@
   <td><span class="src-badge" style="background:#f3f4f6;color:#374151">News</span> Maui Now</td>
   <td><span class="gauge-type-tag" style="color:#1d5fa8">USGS</span><br><span class="gauge-id">USGS-16604500</span><br><small style="color:#666">Wailuku River at Kepaniwai Park</small></td>
   <td class="dist-cell"><strong style="font-weight:700">~2.0 mi</strong></td>
-  <td style="text-align:center"><span class="conf-pill" style="background:#ffedd5;color:#c2410c">Area</span></td>
+  <td style="text-align:center"><span class="conf-pill" style="background:#fef9c3;color:#854d0e">Area</span></td>
 </tr>
 <tr data-storm="KL2" data-island="Maui" data-dist="0.726" data-gap="0">
   <td><span class="pill pill-kl2">KL2</span></td>
@@ -474,7 +489,7 @@
   <td><span class="src-badge" style="background:#fef3c7;color:#92400e">HDOT</span> HIDOT</td>
   <td><span class="gauge-type-tag" style="color:#1d5fa8">USGS</span><br><span class="gauge-id">USGS-16638500</span><br><small style="color:#666">Kahoma Stream at Lahaina</small></td>
   <td class="dist-cell"><strong style="font-weight:700">~0.7 mi</strong></td>
-  <td style="text-align:center"><span class="conf-pill" style="background:#fef9c3;color:#854d0e">Street</span></td>
+  <td style="text-align:center"><span class="conf-pill" style="background:#bbf7d0;color:#166534">Street</span></td>
 </tr>
 <tr data-storm="KL2" data-island="Maui" data-dist="0.673" data-gap="0">
   <td><span class="pill pill-kl2">KL2</span></td>
@@ -485,7 +500,7 @@
   <td><span class="src-badge" style="background:#e0f2fe;color:#0369a1">NWS</span> NWS Local Storm Report (PHFO)</td>
   <td><span class="gauge-type-tag" style="color:#1d5fa8">USGS</span><br><span class="gauge-id">USGS-16638500</span><br><small style="color:#666">Kahoma Stream at Lahaina</small></td>
   <td class="dist-cell"><strong style="font-weight:700">~0.7 mi</strong></td>
-  <td style="text-align:center"><span class="conf-pill" style="background:#fef9c3;color:#854d0e">Street</span></td>
+  <td style="text-align:center"><span class="conf-pill" style="background:#bbf7d0;color:#166534">Street</span></td>
 </tr>
 <tr data-storm="KL2" data-island="Maui" data-dist="1.404" data-gap="0">
   <td><span class="pill pill-kl2">KL2</span></td>
@@ -518,7 +533,7 @@
   <td><span class="src-badge" style="background:#e0f2fe;color:#0369a1">NWS</span> NWS Local Storm Report (PHFO)</td>
   <td><span class="gauge-type-tag" style="color:#1d5fa8">USGS</span><br><span class="gauge-id">USGS-16638500</span><br><small style="color:#666">Kahoma Stream at Lahaina</small></td>
   <td class="dist-cell"><strong style="font-weight:700">~1.0 mi</strong></td>
-  <td style="text-align:center"><span class="conf-pill" style="background:#fef9c3;color:#854d0e">Street</span></td>
+  <td style="text-align:center"><span class="conf-pill" style="background:#bbf7d0;color:#166534">Street</span></td>
 </tr>
 <tr data-storm="KL2" data-island="Molokai" data-dist="1.905" data-gap="0">
   <td><span class="pill pill-kl2">KL2</span></td>
@@ -529,7 +544,7 @@
   <td><span class="src-badge" style="background:#e0f2fe;color:#0369a1">NWS</span> NWS Local Storm Report (PHFO)</td>
   <td><span class="gauge-type-tag" style="color:#1d5fa8">USGS</span><br><span class="gauge-id">USGS-16415600</span><br><small style="color:#666">Kawela Gulch near Moku, Molokai</small></td>
   <td class="dist-cell"><strong style="font-weight:700">~1.9 mi</strong></td>
-  <td style="text-align:center"><span class="conf-pill" style="background:#fef9c3;color:#854d0e">Street</span></td>
+  <td style="text-align:center"><span class="conf-pill" style="background:#bbf7d0;color:#166534">Street</span></td>
 </tr>
 <tr data-storm="KL2" data-island="Maui" data-dist="0.943" data-gap="0">
   <td><span class="pill pill-kl2">KL2</span></td>
@@ -540,7 +555,7 @@
   <td><span class="src-badge" style="background:#e0f2fe;color:#0369a1">NWS</span> NWS Local Storm Report (PHFO)</td>
   <td><span class="gauge-type-tag" style="color:#1d5fa8">USGS</span><br><span class="gauge-id">USGS-16641000</span><br><small style="color:#666">Kauaula Stream US of ditch diversion</small></td>
   <td class="dist-cell"><strong style="font-weight:700">~0.9 mi</strong></td>
-  <td style="text-align:center"><span class="conf-pill" style="background:#fef9c3;color:#854d0e">Street</span></td>
+  <td style="text-align:center"><span class="conf-pill" style="background:#bbf7d0;color:#166534">Street</span></td>
 </tr>
 <tr data-storm="KL2" data-island="Maui" data-dist="0.083" data-gap="0">
   <td><span class="pill pill-kl2">KL2</span></td>
@@ -562,7 +577,7 @@
   <td><span class="src-badge" style="background:#e0f2fe;color:#0369a1">NWS</span> NWS Local Storm Report (PHFO)</td>
   <td><span class="gauge-type-tag" style="color:#0f8a5f">NOAA</span><br><span class="gauge-id">NOAA-1615680</span><br><small style="color:#666">Kahului, Kahului Harbor</small></td>
   <td class="dist-cell"><strong style="font-weight:700">~1.0 mi</strong></td>
-  <td style="text-align:center"><span class="conf-pill" style="background:#fef9c3;color:#854d0e">Street</span></td>
+  <td style="text-align:center"><span class="conf-pill" style="background:#bbf7d0;color:#166534">Street</span></td>
 </tr>
 <tr data-storm="KL2" data-island="Maui" data-dist="0.658" data-gap="0">
   <td><span class="pill pill-kl2">KL2</span></td>
@@ -573,7 +588,7 @@
   <td><span class="src-badge" style="background:#e0f2fe;color:#0369a1">NWS</span> NWS Local Storm Report (PHFO)</td>
   <td><span class="gauge-type-tag" style="color:#0f8a5f">NOAA</span><br><span class="gauge-id">NOAA-1615680</span><br><small style="color:#666">Kahului, Kahului Harbor</small></td>
   <td class="dist-cell"><strong style="font-weight:700">~0.7 mi</strong></td>
-  <td style="text-align:center"><span class="conf-pill" style="background:#fef9c3;color:#854d0e">Street</span></td>
+  <td style="text-align:center"><span class="conf-pill" style="background:#bbf7d0;color:#166534">Street</span></td>
 </tr>
 <tr data-storm="KL2" data-island="Maui" data-dist="0.767" data-gap="0">
   <td><span class="pill pill-kl2">KL2</span></td>
@@ -584,7 +599,7 @@
   <td><span class="src-badge" style="background:#e0f2fe;color:#0369a1">NWS</span> NWS Local Storm Report (PHFO)</td>
   <td><span class="gauge-type-tag" style="color:#0f8a5f">NOAA</span><br><span class="gauge-id">NOAA-1615680</span><br><small style="color:#666">Kahului, Kahului Harbor</small></td>
   <td class="dist-cell"><strong style="font-weight:700">~0.8 mi</strong></td>
-  <td style="text-align:center"><span class="conf-pill" style="background:#fef9c3;color:#854d0e">Street</span></td>
+  <td style="text-align:center"><span class="conf-pill" style="background:#bbf7d0;color:#166534">Street</span></td>
 </tr>
 <tr data-storm="KL2" data-island="Maui" data-dist="0.968" data-gap="0">
   <td><span class="pill pill-kl2">KL2</span></td>
@@ -595,7 +610,7 @@
   <td><span class="src-badge" style="background:#e0f2fe;color:#0369a1">NWS</span> NWS Local Storm Report (PHFO)</td>
   <td><span class="gauge-type-tag" style="color:#0f8a5f">NOAA</span><br><span class="gauge-id">NOAA-1615680</span><br><small style="color:#666">Kahului, Kahului Harbor</small></td>
   <td class="dist-cell"><strong style="font-weight:700">~1.0 mi</strong></td>
-  <td style="text-align:center"><span class="conf-pill" style="background:#fef9c3;color:#854d0e">Street</span></td>
+  <td style="text-align:center"><span class="conf-pill" style="background:#bbf7d0;color:#166534">Street</span></td>
 </tr>
 <tr data-storm="KL2" data-island="Oahu" data-dist="0.871" data-gap="0">
   <td><span class="pill pill-kl2">KL2</span></td>
@@ -606,7 +621,7 @@
   <td><span class="src-badge" style="background:#d1fae5;color:#065f46">311</span> Honolulu 311 Service Request</td>
   <td><span class="gauge-type-tag" style="color:#1d5fa8">USGS</span><br><span class="gauge-id">USGS-16247100</span><br><small style="color:#666">Manoa-Palolo Drainage Canal at Moiliili, Oahu</small></td>
   <td class="dist-cell"><strong style="font-weight:700">~0.9 mi</strong></td>
-  <td style="text-align:center"><span class="conf-pill" style="background:#fef9c3;color:#854d0e">Street</span></td>
+  <td style="text-align:center"><span class="conf-pill" style="background:#bbf7d0;color:#166534">Street</span></td>
 </tr>
 <tr data-storm="KL2" data-island="Oahu" data-dist="1.237" data-gap="0">
   <td><span class="pill pill-kl2">KL2</span></td>
@@ -617,7 +632,7 @@
   <td><span class="src-badge" style="background:#f3f4f6;color:#374151">News</span> KITV</td>
   <td><span class="gauge-type-tag" style="color:#1d5fa8">USGS</span><br><span class="gauge-id">USGS-16249000</span><br><small style="color:#666">Waimanalo Str at Waimanalo, Oahu</small></td>
   <td class="dist-cell"><strong style="font-weight:700">~1.2 mi</strong></td>
-  <td style="text-align:center"><span class="conf-pill" style="background:#fef9c3;color:#854d0e">Street</span></td>
+  <td style="text-align:center"><span class="conf-pill" style="background:#bbf7d0;color:#166534">Street</span></td>
 </tr>
 <tr data-storm="KL2" data-island="Oahu" data-dist="1.091" data-gap="0">
   <td><span class="pill pill-kl2">KL2</span></td>
@@ -628,7 +643,7 @@
   <td><span class="src-badge" style="background:#fef3c7;color:#92400e">HDOT</span> HIDOT</td>
   <td><span class="gauge-type-tag" style="color:#0f8a5f">NOAA</span><br><span class="gauge-id">NOAA-1612340</span><br><small style="color:#666">Honolulu</small></td>
   <td class="dist-cell"><strong style="font-weight:700">~1.1 mi</strong></td>
-  <td style="text-align:center"><span class="conf-pill" style="background:#fef9c3;color:#854d0e">Street</span></td>
+  <td style="text-align:center"><span class="conf-pill" style="background:#bbf7d0;color:#166534">Street</span></td>
 </tr>
 <tr data-storm="KL2" data-island="Oahu" data-dist="1.237" data-gap="0">
   <td><span class="pill pill-kl2">KL2</span></td>
@@ -639,7 +654,7 @@
   <td><span class="src-badge" style="background:#fef3c7;color:#92400e">HDOT</span> HIDOT</td>
   <td><span class="gauge-type-tag" style="color:#1d5fa8">USGS</span><br><span class="gauge-id">USGS-16249000</span><br><small style="color:#666">Waimanalo Str at Waimanalo, Oahu</small></td>
   <td class="dist-cell"><strong style="font-weight:700">~1.2 mi</strong></td>
-  <td style="text-align:center"><span class="conf-pill" style="background:#fef9c3;color:#854d0e">Street</span></td>
+  <td style="text-align:center"><span class="conf-pill" style="background:#bbf7d0;color:#166534">Street</span></td>
 </tr>
 <tr data-storm="KL2" data-island="Oahu" data-dist="1.286" data-gap="0">
   <td><span class="pill pill-kl2">KL2</span></td>
@@ -650,7 +665,7 @@
   <td><span class="src-badge" style="background:#e0f2fe;color:#0369a1">NWS</span> NWS Local Storm Report (PHFO)</td>
   <td><span class="gauge-type-tag" style="color:#1d5fa8">USGS</span><br><span class="gauge-id">USGS-16210000</span><br><small style="color:#666">Wahiawa Reservoir at Spillway at Wahiawa, Oahu</small></td>
   <td class="dist-cell"><strong style="font-weight:700">~1.3 mi</strong></td>
-  <td style="text-align:center"><span class="conf-pill" style="background:#ffedd5;color:#c2410c">Area</span></td>
+  <td style="text-align:center"><span class="conf-pill" style="background:#fef9c3;color:#854d0e">Area</span></td>
 </tr>
 <tr data-storm="KL2" data-island="Oahu" data-dist="0.851" data-gap="0">
   <td><span class="pill pill-kl2">KL2</span></td>
@@ -661,7 +676,7 @@
   <td><span class="src-badge" style="background:#e0f2fe;color:#0369a1">NWS</span> NWS Local Storm Report (PHFO)</td>
   <td><span class="gauge-type-tag" style="color:#1d5fa8">USGS</span><br><span class="gauge-id">USGS-16249000</span><br><small style="color:#666">Waimanalo Str at Waimanalo, Oahu</small></td>
   <td class="dist-cell"><strong style="font-weight:700">~0.9 mi</strong></td>
-  <td style="text-align:center"><span class="conf-pill" style="background:#ffedd5;color:#c2410c">Area</span></td>
+  <td style="text-align:center"><span class="conf-pill" style="background:#fef9c3;color:#854d0e">Area</span></td>
 </tr>
 <tr data-storm="KL2" data-island="Oahu" data-dist="1.586" data-gap="0">
   <td><span class="pill pill-kl2">KL2</span></td>
@@ -672,7 +687,7 @@
   <td><span class="src-badge" style="background:#d1fae5;color:#065f46">311</span> Honolulu 311 Service Request</td>
   <td><span class="gauge-type-tag" style="color:#1d5fa8">USGS</span><br><span class="gauge-id">USGS-16304200</span><br><small style="color:#666">Kaluanui Stream nr Punaluu, Oahu</small></td>
   <td class="dist-cell"><strong style="font-weight:700">~1.6 mi</strong></td>
-  <td style="text-align:center"><span class="conf-pill" style="background:#ffedd5;color:#c2410c">Area</span></td>
+  <td style="text-align:center"><span class="conf-pill" style="background:#fef9c3;color:#854d0e">Area</span></td>
 </tr>
 <tr data-storm="KL2" data-island="Oahu" data-dist="4.294" data-gap="1" class="gap-row">
   <td><span class="pill pill-kl2">KL2</span></td>
@@ -683,7 +698,7 @@
   <td><span class="src-badge" style="background:#f3f4f6;color:#374151">News</span> KHON2</td>
   <td><span class="gauge-type-tag" style="color:#1d5fa8">USGS</span><br><span class="gauge-id">USGS-16304200</span><br><small style="color:#666">Kaluanui Stream nr Punaluu, Oahu</small></td>
   <td class="dist-cell"><strong style="color:#FF725D;font-weight:700">~4.3 mi</strong></td>
-  <td style="text-align:center"><span class="conf-pill" style="background:#ffedd5;color:#c2410c">Area</span></td>
+  <td style="text-align:center"><span class="conf-pill" style="background:#fef9c3;color:#854d0e">Area</span></td>
 </tr>
 <tr data-storm="KL2" data-island="Oahu" data-dist="0.475" data-gap="0">
   <td><span class="pill pill-kl2">KL2</span></td>
@@ -694,7 +709,7 @@
   <td><span class="src-badge" style="background:#d1fae5;color:#065f46">311</span> Honolulu 311 Service Request</td>
   <td><span class="gauge-type-tag" style="color:#0f8a5f">NOAA</span><br><span class="gauge-id">NOAA-1612340</span><br><small style="color:#666">Honolulu</small></td>
   <td class="dist-cell"><strong style="font-weight:700">~0.5 mi</strong></td>
-  <td style="text-align:center"><span class="conf-pill" style="background:#fef9c3;color:#854d0e">Street</span></td>
+  <td style="text-align:center"><span class="conf-pill" style="background:#bbf7d0;color:#166534">Street</span></td>
 </tr>
 <tr data-storm="KL2" data-island="Oahu" data-dist="1.227" data-gap="0">
   <td><span class="pill pill-kl2">KL2</span></td>
@@ -705,7 +720,7 @@
   <td><span class="src-badge" style="background:#fef3c7;color:#92400e">HDOT</span> HIDOT</td>
   <td><span class="gauge-type-tag" style="color:#1d5fa8">USGS</span><br><span class="gauge-id">USGS-16296500</span><br><small style="color:#666">Kahana Str at alt 30 ft nr Kahana, Oahu</small></td>
   <td class="dist-cell"><strong style="font-weight:700">~1.2 mi</strong></td>
-  <td style="text-align:center"><span class="conf-pill" style="background:#fef9c3;color:#854d0e">Street</span></td>
+  <td style="text-align:center"><span class="conf-pill" style="background:#bbf7d0;color:#166534">Street</span></td>
 </tr>
 <tr data-storm="KL2" data-island="Oahu" data-dist="2.706" data-gap="0">
   <td><span class="pill pill-kl2">KL2</span></td>
@@ -716,7 +731,7 @@
   <td><span class="src-badge" style="background:#e0f2fe;color:#0369a1">NWS</span> NWS Local Storm Report (PHFO)</td>
   <td><span class="gauge-type-tag" style="color:#1d5fa8">USGS</span><br><span class="gauge-id">USGS-16210500</span><br><small style="color:#666">Kaukonahua Str at Waialua, Oahu</small></td>
   <td class="dist-cell"><strong style="font-weight:700">~2.7 mi</strong></td>
-  <td style="text-align:center"><span class="conf-pill" style="background:#fef9c3;color:#854d0e">Street</span></td>
+  <td style="text-align:center"><span class="conf-pill" style="background:#bbf7d0;color:#166534">Street</span></td>
 </tr>
 <tr data-storm="KL2" data-island="Oahu" data-dist="1.85" data-gap="0">
   <td><span class="pill pill-kl2">KL2</span></td>
@@ -727,7 +742,7 @@
   <td><span class="src-badge" style="background:#f3f4f6;color:#374151">News</span> KHON2</td>
   <td><span class="gauge-type-tag" style="color:#1d5fa8">USGS</span><br><span class="gauge-id">USGS-16330000</span><br><small style="color:#666">Kamananui Str at Maunawai, Oahu</small></td>
   <td class="dist-cell"><strong style="font-weight:700">~1.9 mi</strong></td>
-  <td style="text-align:center"><span class="conf-pill" style="background:#fef9c3;color:#854d0e">Street</span></td>
+  <td style="text-align:center"><span class="conf-pill" style="background:#bbf7d0;color:#166534">Street</span></td>
 </tr>
 <tr data-storm="KL2" data-island="Oahu" data-dist="1.798" data-gap="0">
   <td><span class="pill pill-kl2">KL2</span></td>
@@ -738,7 +753,7 @@
   <td><span class="src-badge" style="background:#f3f4f6;color:#374151">News</span> KITV</td>
   <td><span class="gauge-type-tag" style="color:#1d5fa8">USGS</span><br><span class="gauge-id">USGS-16249000</span><br><small style="color:#666">Waimanalo Str at Waimanalo, Oahu</small></td>
   <td class="dist-cell"><strong style="font-weight:700">~1.8 mi</strong></td>
-  <td style="text-align:center"><span class="conf-pill" style="background:#fef9c3;color:#854d0e">Street</span></td>
+  <td style="text-align:center"><span class="conf-pill" style="background:#bbf7d0;color:#166534">Street</span></td>
 </tr>
 <tr data-storm="KL2" data-island="Oahu" data-dist="4.379" data-gap="1" class="gap-row">
   <td><span class="pill pill-kl2">KL2</span></td>
@@ -749,7 +764,7 @@
   <td><span class="src-badge" style="background:#d1fae5;color:#065f46">311</span> Honolulu 311 Service Request</td>
   <td><span class="gauge-type-tag" style="color:#1d5fa8">USGS</span><br><span class="gauge-id">USGS-16211800</span><br><small style="color:#666">Kaupuni Str at alt 374 ft nr Waianae, Oahu</small></td>
   <td class="dist-cell"><strong style="color:#FF725D;font-weight:700">~4.4 mi</strong></td>
-  <td style="text-align:center"><span class="conf-pill" style="background:#fef9c3;color:#854d0e">Street</span></td>
+  <td style="text-align:center"><span class="conf-pill" style="background:#bbf7d0;color:#166534">Street</span></td>
 </tr>
 <tr data-storm="KL2" data-island="Oahu" data-dist="0.926" data-gap="0">
   <td><span class="pill pill-kl2">KL2</span></td>
@@ -760,7 +775,7 @@
   <td><span class="src-badge" style="background:#f3f4f6;color:#374151">News</span> KITV</td>
   <td><span class="gauge-type-tag" style="color:#1d5fa8">USGS</span><br><span class="gauge-id">USGS-16238000</span><br><small style="color:#666">Makiki Stream at King St. bridge, Oahu</small></td>
   <td class="dist-cell"><strong style="font-weight:700">~0.9 mi</strong></td>
-  <td style="text-align:center"><span class="conf-pill" style="background:#fef9c3;color:#854d0e">Street</span></td>
+  <td style="text-align:center"><span class="conf-pill" style="background:#bbf7d0;color:#166534">Street</span></td>
 </tr>
 <tr data-storm="KL2" data-island="Oahu" data-dist="1.049" data-gap="0">
   <td><span class="pill pill-kl2">KL2</span></td>
@@ -771,7 +786,7 @@
   <td><span class="src-badge" style="background:#f3f4f6;color:#374151">News</span> KITV</td>
   <td><span class="gauge-type-tag" style="color:#1d5fa8">USGS</span><br><span class="gauge-id">USGS-16264600</span><br><small style="color:#666">Kawainui Marsh nr levee sta 15+00, Oahu</small></td>
   <td class="dist-cell"><strong style="font-weight:700">~1.0 mi</strong></td>
-  <td style="text-align:center"><span class="conf-pill" style="background:#fef9c3;color:#854d0e">Street</span></td>
+  <td style="text-align:center"><span class="conf-pill" style="background:#bbf7d0;color:#166534">Street</span></td>
 </tr>
 <tr data-storm="KL2" data-island="Oahu" data-dist="0.621" data-gap="0">
   <td><span class="pill pill-kl2">KL2</span></td>
@@ -782,7 +797,7 @@
   <td><span class="src-badge" style="background:#e0f2fe;color:#0369a1">NWS</span> NWS Local Storm Report (PHFO)</td>
   <td><span class="gauge-type-tag" style="color:#1d5fa8">USGS</span><br><span class="gauge-id">USGS-16210500</span><br><small style="color:#666">Kaukonahua Str at Waialua, Oahu</small></td>
   <td class="dist-cell"><strong style="font-weight:700">~0.6 mi</strong></td>
-  <td style="text-align:center"><span class="conf-pill" style="background:#ffedd5;color:#c2410c">Area</span></td>
+  <td style="text-align:center"><span class="conf-pill" style="background:#fef9c3;color:#854d0e">Area</span></td>
 </tr>
 <tr data-storm="KL2" data-island="Oahu" data-dist="4.379" data-gap="1" class="gap-row">
   <td><span class="pill pill-kl2">KL2</span></td>
@@ -793,7 +808,7 @@
   <td><span class="src-badge" style="background:#d1fae5;color:#065f46">311</span> Honolulu 311 Service Request</td>
   <td><span class="gauge-type-tag" style="color:#1d5fa8">USGS</span><br><span class="gauge-id">USGS-16211800</span><br><small style="color:#666">Kaupuni Str at alt 374 ft nr Waianae, Oahu</small></td>
   <td class="dist-cell"><strong style="color:#FF725D;font-weight:700">~4.4 mi</strong></td>
-  <td style="text-align:center"><span class="conf-pill" style="background:#fef9c3;color:#854d0e">Street</span></td>
+  <td style="text-align:center"><span class="conf-pill" style="background:#bbf7d0;color:#166534">Street</span></td>
 </tr>
 <tr data-storm="KL2" data-island="Oahu" data-dist="3.206" data-gap="1" class="gap-row">
   <td><span class="pill pill-kl2">KL2</span></td>
@@ -815,7 +830,7 @@
   <td><span class="src-badge" style="background:#f3f4f6;color:#374151">News</span> KHON2</td>
   <td><span class="gauge-type-tag" style="color:#1d5fa8">USGS</span><br><span class="gauge-id">USGS-16249000</span><br><small style="color:#666">Waimanalo Str at Waimanalo, Oahu</small></td>
   <td class="dist-cell"><strong style="font-weight:700">~1.2 mi</strong></td>
-  <td style="text-align:center"><span class="conf-pill" style="background:#fef9c3;color:#854d0e">Street</span></td>
+  <td style="text-align:center"><span class="conf-pill" style="background:#bbf7d0;color:#166534">Street</span></td>
 </tr>
 <tr data-storm="KL2" data-island="Oahu" data-dist="4.379" data-gap="1" class="gap-row">
   <td><span class="pill pill-kl2">KL2</span></td>
@@ -826,7 +841,7 @@
   <td><span class="src-badge" style="background:#d1fae5;color:#065f46">311</span> Honolulu 311 Service Request</td>
   <td><span class="gauge-type-tag" style="color:#1d5fa8">USGS</span><br><span class="gauge-id">USGS-16211800</span><br><small style="color:#666">Kaupuni Str at alt 374 ft nr Waianae, Oahu</small></td>
   <td class="dist-cell"><strong style="color:#FF725D;font-weight:700">~4.4 mi</strong></td>
-  <td style="text-align:center"><span class="conf-pill" style="background:#fef9c3;color:#854d0e">Street</span></td>
+  <td style="text-align:center"><span class="conf-pill" style="background:#bbf7d0;color:#166534">Street</span></td>
 </tr>
 <tr data-storm="KL2" data-island="Oahu" data-dist="1.227" data-gap="0">
   <td><span class="pill pill-kl2">KL2</span></td>
@@ -837,7 +852,7 @@
   <td><span class="src-badge" style="background:#fef3c7;color:#92400e">HDOT</span> HIDOT</td>
   <td><span class="gauge-type-tag" style="color:#1d5fa8">USGS</span><br><span class="gauge-id">USGS-16296500</span><br><small style="color:#666">Kahana Str at alt 30 ft nr Kahana, Oahu</small></td>
   <td class="dist-cell"><strong style="font-weight:700">~1.2 mi</strong></td>
-  <td style="text-align:center"><span class="conf-pill" style="background:#fef9c3;color:#854d0e">Street</span></td>
+  <td style="text-align:center"><span class="conf-pill" style="background:#bbf7d0;color:#166534">Street</span></td>
 </tr>
 <tr data-storm="KL2" data-island="Oahu" data-dist="0.043" data-gap="0">
   <td><span class="pill pill-kl2">KL2</span></td>
@@ -848,7 +863,7 @@
   <td><span class="src-badge" style="background:#f3f4f6;color:#374151">News</span> KHON2</td>
   <td><span class="gauge-type-tag" style="color:#1d5fa8">USGS</span><br><span class="gauge-id">USGS-16210500</span><br><small style="color:#666">Kaukonahua Str at Waialua, Oahu</small></td>
   <td class="dist-cell"><strong style="font-weight:700">~0.0 mi</strong></td>
-  <td style="text-align:center"><span class="conf-pill" style="background:#fef9c3;color:#854d0e">Street</span></td>
+  <td style="text-align:center"><span class="conf-pill" style="background:#bbf7d0;color:#166534">Street</span></td>
 </tr>
 <tr data-storm="KL2" data-island="Oahu" data-dist="1.011" data-gap="0">
   <td><span class="pill pill-kl2">KL2</span></td>
@@ -859,7 +874,7 @@
   <td><span class="src-badge" style="background:#e0f2fe;color:#0369a1">NWS</span> NWS Local Storm Report (PHFO)</td>
   <td><span class="gauge-type-tag" style="color:#1d5fa8">USGS</span><br><span class="gauge-id">USGS-16210500</span><br><small style="color:#666">Kaukonahua Str at Waialua, Oahu</small></td>
   <td class="dist-cell"><strong style="font-weight:700">~1.0 mi</strong></td>
-  <td style="text-align:center"><span class="conf-pill" style="background:#fef9c3;color:#854d0e">Street</span></td>
+  <td style="text-align:center"><span class="conf-pill" style="background:#bbf7d0;color:#166534">Street</span></td>
 </tr>
 <tr data-storm="KL2" data-island="Oahu" data-dist="1.072" data-gap="0">
   <td><span class="pill pill-kl2">KL2</span></td>
@@ -892,7 +907,7 @@
   <td><span class="src-badge" style="background:#e0f2fe;color:#0369a1">NWS</span> NWS Local Storm Report (PHFO)</td>
   <td><span class="gauge-type-tag" style="color:#1d5fa8">USGS</span><br><span class="gauge-id">USGS-16210500</span><br><small style="color:#666">Kaukonahua Str at Waialua, Oahu</small></td>
   <td class="dist-cell"><strong style="font-weight:700">~0.3 mi</strong></td>
-  <td style="text-align:center"><span class="conf-pill" style="background:#fef9c3;color:#854d0e">Street</span></td>
+  <td style="text-align:center"><span class="conf-pill" style="background:#bbf7d0;color:#166534">Street</span></td>
 </tr>
 <tr data-storm="KL2" data-island="Oahu" data-dist="0.815" data-gap="0">
   <td><span class="pill pill-kl2">KL2</span></td>
@@ -903,7 +918,7 @@
   <td><span class="src-badge" style="background:#fef3c7;color:#92400e">HDOT</span> HIDOT</td>
   <td><span class="gauge-type-tag" style="color:#1d5fa8">USGS</span><br><span class="gauge-id">USGS-16294900</span><br><small style="color:#666">Waikane Str at alt 75 ft at Waikane, Oahu</small></td>
   <td class="dist-cell"><strong style="font-weight:700">~0.8 mi</strong></td>
-  <td style="text-align:center"><span class="conf-pill" style="background:#fef9c3;color:#854d0e">Street</span></td>
+  <td style="text-align:center"><span class="conf-pill" style="background:#bbf7d0;color:#166534">Street</span></td>
 </tr>
 <tr data-storm="KL2" data-island="Oahu" data-dist="3.206" data-gap="1" class="gap-row">
   <td><span class="pill pill-kl2">KL2</span></td>
@@ -925,7 +940,7 @@
   <td><span class="src-badge" style="background:#e0f2fe;color:#0369a1">NWS</span> NWS Local Storm Report (PHFO)</td>
   <td><span class="gauge-type-tag" style="color:#1d5fa8">USGS</span><br><span class="gauge-id">USGS-16210500</span><br><small style="color:#666">Kaukonahua Str at Waialua, Oahu</small></td>
   <td class="dist-cell"><strong style="font-weight:700">~0.6 mi</strong></td>
-  <td style="text-align:center"><span class="conf-pill" style="background:#ffedd5;color:#c2410c">Area</span></td>
+  <td style="text-align:center"><span class="conf-pill" style="background:#fef9c3;color:#854d0e">Area</span></td>
 </tr>
 <tr data-storm="KL2" data-island="Oahu" data-dist="0.218" data-gap="0">
   <td><span class="pill pill-kl2">KL2</span></td>
@@ -936,7 +951,7 @@
   <td><span class="src-badge" style="background:#e0f2fe;color:#0369a1">NWS</span> NWS Local Storm Report (PHFO)</td>
   <td><span class="gauge-type-tag" style="color:#7611FF">Hohonu</span><br><span class="gauge-id">hohonu-125</span><br><small style="color:#666">Loko Ea – Makai Makaha 1 (North Shore)</small></td>
   <td class="dist-cell"><strong style="font-weight:700">~0.2 mi</strong></td>
-  <td style="text-align:center"><span class="conf-pill" style="background:#ffedd5;color:#c2410c">Area</span></td>
+  <td style="text-align:center"><span class="conf-pill" style="background:#fef9c3;color:#854d0e">Area</span></td>
 </tr>
 <tr data-storm="KL2" data-island="Oahu" data-dist="0.033" data-gap="0">
   <td><span class="pill pill-kl2">KL2</span></td>
@@ -958,7 +973,7 @@
   <td><span class="src-badge" style="background:#e0f2fe;color:#0369a1">NWS</span> NWS Local Storm Report (PHFO)</td>
   <td><span class="gauge-type-tag" style="color:#1d5fa8">USGS</span><br><span class="gauge-id">USGS-16211600</span><br><small style="color:#666">Makaha Str nr Makaha, Oahu</small></td>
   <td class="dist-cell"><strong style="font-weight:700">~2.2 mi</strong></td>
-  <td style="text-align:center"><span class="conf-pill" style="background:#ffedd5;color:#c2410c">Area</span></td>
+  <td style="text-align:center"><span class="conf-pill" style="background:#fef9c3;color:#854d0e">Area</span></td>
 </tr>
 <tr data-storm="KL2" data-island="Oahu" data-dist="1.85" data-gap="0">
   <td><span class="pill pill-kl2">KL2</span></td>
@@ -969,7 +984,7 @@
   <td><span class="src-badge" style="background:#fef3c7;color:#92400e">HDOT</span> HIDOT</td>
   <td><span class="gauge-type-tag" style="color:#1d5fa8">USGS</span><br><span class="gauge-id">USGS-16330000</span><br><small style="color:#666">Kamananui Str at Maunawai, Oahu</small></td>
   <td class="dist-cell"><strong style="font-weight:700">~1.9 mi</strong></td>
-  <td style="text-align:center"><span class="conf-pill" style="background:#fef9c3;color:#854d0e">Street</span></td>
+  <td style="text-align:center"><span class="conf-pill" style="background:#bbf7d0;color:#166534">Street</span></td>
 </tr>
 <tr data-storm="KL2" data-island="Oahu" data-dist="0.329" data-gap="0">
   <td><span class="pill pill-kl2">KL2</span></td>
@@ -1013,7 +1028,7 @@
   <td><span class="src-badge" style="background:#d1fae5;color:#065f46">311</span> Honolulu 311 Service Request</td>
   <td><span class="gauge-type-tag" style="color:#7611FF">Hohonu</span><br><span class="gauge-id">hohonu-130</span><br><small style="color:#666">Keawawa Wetland</small></td>
   <td class="dist-cell"><strong style="color:#FF725D;font-weight:700">~3.3 mi</strong></td>
-  <td style="text-align:center"><span class="conf-pill" style="background:#bbf7d0;color:#166534">Good</span></td>
+  <td style="text-align:center"><span class="conf-pill" style="background:#bbf7d0;color:#166534">Street</span></td>
 </tr>
 <tr data-storm="KL1" data-island="Oahu" data-dist="1.227" data-gap="0">
   <td><span class="pill pill-kl1">KL1</span></td>
@@ -1024,7 +1039,7 @@
   <td><span class="src-badge" style="background:#e0f2fe;color:#0369a1">NWS</span> NWS Local Storm Report (PHFO)</td>
   <td><span class="gauge-type-tag" style="color:#1d5fa8">USGS</span><br><span class="gauge-id">USGS-16296500</span><br><small style="color:#666">Kahana Str at alt 30 ft nr Kahana, Oahu</small></td>
   <td class="dist-cell"><strong style="font-weight:700">~1.2 mi</strong></td>
-  <td style="text-align:center"><span class="conf-pill" style="background:#fef9c3;color:#854d0e">Street</span></td>
+  <td style="text-align:center"><span class="conf-pill" style="background:#bbf7d0;color:#166534">Street</span></td>
 </tr>
 <tr data-storm="KL1" data-island="Hawaii" data-dist="0.107" data-gap="0">
   <td><span class="pill pill-kl1">KL1</span></td>
@@ -1035,7 +1050,7 @@
   <td><span class="src-badge" style="background:#fef3c7;color:#92400e">HDOT</span> HIDOT</td>
   <td><span class="gauge-type-tag" style="color:#0f8a5f">NOAA</span><br><span class="gauge-id">NOAA-1617433</span><br><small style="color:#666">Kawaihae</small></td>
   <td class="dist-cell"><strong style="font-weight:700">~0.1 mi</strong></td>
-  <td style="text-align:center"><span class="conf-pill" style="background:#fef9c3;color:#854d0e">Street</span></td>
+  <td style="text-align:center"><span class="conf-pill" style="background:#bbf7d0;color:#166534">Street</span></td>
 </tr>
 <tr data-storm="KL1" data-island="Maui" data-dist="7.299" data-gap="1" class="gap-row">
   <td><span class="pill pill-kl1">KL1</span></td>
@@ -1046,7 +1061,7 @@
   <td><span class="src-badge" style="background:#f3f4f6;color:#374151">News</span> Maui Now</td>
   <td><span class="gauge-type-tag" style="color:#1d5fa8">USGS</span><br><span class="gauge-id">USGS-16552800</span><br><small style="color:#666">Waikamoi Str abv Kula PL intake nr Olinda</small></td>
   <td class="dist-cell"><strong style="color:#FF725D;font-weight:700">~7.3 mi</strong></td>
-  <td style="text-align:center"><span class="conf-pill" style="background:#fef9c3;color:#854d0e">Street</span></td>
+  <td style="text-align:center"><span class="conf-pill" style="background:#bbf7d0;color:#166534">Street</span></td>
 </tr>
 <tr data-storm="KL1" data-island="Oahu" data-dist="2.145" data-gap="0">
   <td><span class="pill pill-kl1">KL1</span></td>
@@ -1095,7 +1110,7 @@ Stanmiyamoto@gmail.com</td>
   <td><span class="src-badge" style="background:#e0f2fe;color:#0369a1">NWS</span> NWS Local Storm Report (PHFO)</td>
   <td><span class="gauge-type-tag" style="color:#1d5fa8">USGS</span><br><span class="gauge-id">USGS-16770500</span><br><small style="color:#666">Paauau Gulch at Pahala</small></td>
   <td class="dist-cell"><strong style="color:#FF725D;font-weight:700">~5.4 mi</strong></td>
-  <td style="text-align:center"><span class="conf-pill" style="background:#fef9c3;color:#854d0e">Street</span></td>
+  <td style="text-align:center"><span class="conf-pill" style="background:#bbf7d0;color:#166534">Street</span></td>
 </tr>
 <tr data-storm="KL1" data-island="Oahu" data-dist="0.677" data-gap="0">
   <td><span class="pill pill-kl1">KL1</span></td>
@@ -1106,7 +1121,7 @@ Stanmiyamoto@gmail.com</td>
   <td><span class="src-badge" style="background:#fef3c7;color:#92400e">HDOT</span> HIDOT</td>
   <td><span class="gauge-type-tag" style="color:#0f8a5f">NOAA</span><br><span class="gauge-id">NOAA-1612340</span><br><small style="color:#666">Honolulu</small></td>
   <td class="dist-cell"><strong style="font-weight:700">~0.7 mi</strong></td>
-  <td style="text-align:center"><span class="conf-pill" style="background:#fef9c3;color:#854d0e">Street</span></td>
+  <td style="text-align:center"><span class="conf-pill" style="background:#bbf7d0;color:#166534">Street</span></td>
 </tr>
 <tr data-storm="KL1" data-island="Hawaii" data-dist="2.471" data-gap="0">
   <td><span class="pill pill-kl1">KL1</span></td>
@@ -1117,7 +1132,7 @@ Stanmiyamoto@gmail.com</td>
   <td><span class="src-badge" style="background:#e0f2fe;color:#0369a1">NWS</span> NWS Local Storm Report (PHFO)</td>
   <td><span class="gauge-type-tag" style="color:#1d5fa8">USGS</span><br><span class="gauge-id">USGS-16759600</span><br><small style="color:#666">Waiaha Stream at Holualoa</small></td>
   <td class="dist-cell"><strong style="font-weight:700">~2.5 mi</strong></td>
-  <td style="text-align:center"><span class="conf-pill" style="background:#fef9c3;color:#854d0e">Street</span></td>
+  <td style="text-align:center"><span class="conf-pill" style="background:#bbf7d0;color:#166534">Street</span></td>
 </tr>
 <tr data-storm="KL1" data-island="Oahu" data-dist="0.546" data-gap="0">
   <td><span class="pill pill-kl1">KL1</span></td>
@@ -1128,7 +1143,7 @@ Stanmiyamoto@gmail.com</td>
   <td><span class="src-badge" style="background:#e0f2fe;color:#0369a1">NWS</span> NWS Local Storm Report (PHFO)</td>
   <td><span class="gauge-type-tag" style="color:#7611FF">Hohonu</span><br><span class="gauge-id">hohonu-109</span><br><small style="color:#666">Keiki O Ka Aina, Waiawa Wetland</small></td>
   <td class="dist-cell"><strong style="font-weight:700">~0.5 mi</strong></td>
-  <td style="text-align:center"><span class="conf-pill" style="background:#ffedd5;color:#c2410c">Area</span></td>
+  <td style="text-align:center"><span class="conf-pill" style="background:#fef9c3;color:#854d0e">Area</span></td>
 </tr>
 <tr data-storm="KL1" data-island="Maui" data-dist="7.325" data-gap="1" class="gap-row">
   <td><span class="pill pill-kl1">KL1</span></td>
@@ -1139,7 +1154,7 @@ Stanmiyamoto@gmail.com</td>
   <td><span class="src-badge" style="background:#e0f2fe;color:#0369a1">NWS</span> NWS Local Storm Report (PHFO)</td>
   <td><span class="gauge-type-tag" style="color:#1d5fa8">USGS</span><br><span class="gauge-id">USGS-16501200</span><br><small style="color:#666">Oheo Gulch at dam near Kipahulu, Maui</small></td>
   <td class="dist-cell"><strong style="color:#FF725D;font-weight:700">~7.3 mi</strong></td>
-  <td style="text-align:center"><span class="conf-pill" style="background:#ffedd5;color:#c2410c">Area</span></td>
+  <td style="text-align:center"><span class="conf-pill" style="background:#fef9c3;color:#854d0e">Area</span></td>
 </tr>
 <tr data-storm="KL1" data-island="Maui" data-dist="1.117" data-gap="0">
   <td><span class="pill pill-kl1">KL1</span></td>
@@ -1150,7 +1165,7 @@ Stanmiyamoto@gmail.com</td>
   <td><span class="src-badge" style="background:#e0f2fe;color:#0369a1">NWS</span> NWS Local Storm Report (PHFO)</td>
   <td><span class="gauge-type-tag" style="color:#1d5fa8">USGS</span><br><span class="gauge-id">USGS-16501200</span><br><small style="color:#666">Oheo Gulch at dam near Kipahulu, Maui</small></td>
   <td class="dist-cell"><strong style="font-weight:700">~1.1 mi</strong></td>
-  <td style="text-align:center"><span class="conf-pill" style="background:#ffedd5;color:#c2410c">Area</span></td>
+  <td style="text-align:center"><span class="conf-pill" style="background:#fef9c3;color:#854d0e">Area</span></td>
 </tr>
 <tr data-storm="KL1" data-island="Maui" data-dist="7.325" data-gap="1" class="gap-row">
   <td><span class="pill pill-kl1">KL1</span></td>
@@ -1161,7 +1176,7 @@ Stanmiyamoto@gmail.com</td>
   <td><span class="src-badge" style="background:#e0f2fe;color:#0369a1">NWS</span> NWS Local Storm Report (PHFO)</td>
   <td><span class="gauge-type-tag" style="color:#1d5fa8">USGS</span><br><span class="gauge-id">USGS-16501200</span><br><small style="color:#666">Oheo Gulch at dam near Kipahulu, Maui</small></td>
   <td class="dist-cell"><strong style="color:#FF725D;font-weight:700">~7.3 mi</strong></td>
-  <td style="text-align:center"><span class="conf-pill" style="background:#ffedd5;color:#c2410c">Area</span></td>
+  <td style="text-align:center"><span class="conf-pill" style="background:#fef9c3;color:#854d0e">Area</span></td>
 </tr>
 <tr data-storm="KL1" data-island="Maui" data-dist="1.404" data-gap="0">
   <td><span class="pill pill-kl1">KL1</span></td>
@@ -1172,7 +1187,7 @@ Stanmiyamoto@gmail.com</td>
   <td><span class="src-badge" style="background:#e0f2fe;color:#0369a1">NWS</span> NWS Local Storm Report (PHFO)</td>
   <td><span class="gauge-type-tag" style="color:#1d5fa8">USGS</span><br><span class="gauge-id">USGS-16605500</span><br><small style="color:#666">Wailuku River at Iao Valley Road</small></td>
   <td class="dist-cell"><strong style="font-weight:700">~1.4 mi</strong></td>
-  <td style="text-align:center"><span class="conf-pill" style="background:#ffedd5;color:#c2410c">Area</span></td>
+  <td style="text-align:center"><span class="conf-pill" style="background:#fef9c3;color:#854d0e">Area</span></td>
 </tr>
 <tr data-storm="KL1" data-island="Maui" data-dist="7.436" data-gap="1" class="gap-row">
   <td><span class="pill pill-kl1">KL1</span></td>
@@ -1183,7 +1198,7 @@ Stanmiyamoto@gmail.com</td>
   <td><span class="src-badge" style="background:#e0f2fe;color:#0369a1">NWS</span> NWS Local Storm Report (PHFO)</td>
   <td><span class="gauge-type-tag" style="color:#1d5fa8">USGS</span><br><span class="gauge-id">USGS-16647900</span><br><small style="color:#666">Waikapu Str US of S Waikapu Dt intake</small></td>
   <td class="dist-cell"><strong style="color:#FF725D;font-weight:700">~7.4 mi</strong></td>
-  <td style="text-align:center"><span class="conf-pill" style="background:#fef9c3;color:#854d0e">Street</span></td>
+  <td style="text-align:center"><span class="conf-pill" style="background:#bbf7d0;color:#166534">Street</span></td>
 </tr>
 <tr data-storm="KL1" data-island="Hawaii" data-dist="3.025" data-gap="0">
   <td><span class="pill pill-kl1">KL1</span></td>
@@ -1194,7 +1209,7 @@ Stanmiyamoto@gmail.com</td>
   <td><span class="src-badge" style="background:#e0f2fe;color:#0369a1">NWS</span> NWS Local Storm Report (PHFO)</td>
   <td><span class="gauge-type-tag" style="color:#1d5fa8">USGS</span><br><span class="gauge-id">USGS-16770500</span><br><small style="color:#666">Paauau Gulch at Pahala</small></td>
   <td class="dist-cell"><strong style="font-weight:700">~3.0 mi</strong></td>
-  <td style="text-align:center"><span class="conf-pill" style="background:#ffedd5;color:#c2410c">Area</span></td>
+  <td style="text-align:center"><span class="conf-pill" style="background:#fef9c3;color:#854d0e">Area</span></td>
 </tr>
 <tr data-storm="KL1" data-island="Oahu" data-dist="1.612" data-gap="0">
   <td><span class="pill pill-kl1">KL1</span></td>
@@ -1205,7 +1220,7 @@ Stanmiyamoto@gmail.com</td>
   <td><span class="src-badge" style="background:#fef3c7;color:#92400e">HDOT</span> HIDOT</td>
   <td><span class="gauge-type-tag" style="color:#7611FF">Hohonu</span><br><span class="gauge-id">hohonu-158</span><br><small style="color:#666">Nihola Loko Iʻa</small></td>
   <td class="dist-cell"><strong style="font-weight:700">~1.6 mi</strong></td>
-  <td style="text-align:center"><span class="conf-pill" style="background:#fef9c3;color:#854d0e">Street</span></td>
+  <td style="text-align:center"><span class="conf-pill" style="background:#bbf7d0;color:#166534">Street</span></td>
 </tr>
 <tr data-storm="KL1" data-island="Oahu" data-dist="1.035" data-gap="0">
   <td><span class="pill pill-kl1">KL1</span></td>
@@ -1216,7 +1231,7 @@ Stanmiyamoto@gmail.com</td>
   <td><span class="src-badge" style="background:#fef3c7;color:#92400e">HDOT</span> HIDOT</td>
   <td><span class="gauge-type-tag" style="color:#1d5fa8">USGS</span><br><span class="gauge-id">USGS-16249000</span><br><small style="color:#666">Waimanalo Str at Waimanalo, Oahu</small></td>
   <td class="dist-cell"><strong style="font-weight:700">~1.0 mi</strong></td>
-  <td style="text-align:center"><span class="conf-pill" style="background:#fef9c3;color:#854d0e">Street</span></td>
+  <td style="text-align:center"><span class="conf-pill" style="background:#bbf7d0;color:#166534">Street</span></td>
 </tr>
 <tr data-storm="KL1" data-island="Oahu" data-dist="1.02" data-gap="0">
   <td><span class="pill pill-kl1">KL1</span></td>
@@ -1238,7 +1253,7 @@ Stanmiyamoto@gmail.com</td>
   <td><span class="src-badge" style="background:#f3f4f6;color:#374151">News</span> Hawaii News Now</td>
   <td><span class="gauge-type-tag" style="color:#1d5fa8">USGS</span><br><span class="gauge-id">USGS-16247100</span><br><small style="color:#666">Manoa-Palolo Drainage Canal at Moiliili, Oahu</small></td>
   <td class="dist-cell"><strong style="font-weight:700">~1.0 mi</strong></td>
-  <td style="text-align:center"><span class="conf-pill" style="background:#fef9c3;color:#854d0e">Street</span></td>
+  <td style="text-align:center"><span class="conf-pill" style="background:#bbf7d0;color:#166534">Street</span></td>
 </tr>
 <tr data-storm="KL1" data-island="Hawaii" data-dist="10.574" data-gap="1" class="gap-row">
   <td><span class="pill pill-kl1">KL1</span></td>
@@ -1249,7 +1264,7 @@ Stanmiyamoto@gmail.com</td>
   <td><span class="src-badge" style="background:#f3f4f6;color:#374151">News</span> Big Island Video News</td>
   <td><span class="gauge-type-tag" style="color:#1d5fa8">USGS</span><br><span class="gauge-id">USGS-16759600</span><br><small style="color:#666">Waiaha Stream at Holualoa</small></td>
   <td class="dist-cell"><strong style="color:#FF725D;font-weight:700">~10.6 mi</strong></td>
-  <td style="text-align:center"><span class="conf-pill" style="background:#fef9c3;color:#854d0e">Street</span></td>
+  <td style="text-align:center"><span class="conf-pill" style="background:#bbf7d0;color:#166534">Street</span></td>
 </tr>
 <tr data-storm="KL1" data-island="Hawaii" data-dist="1.102" data-gap="0">
   <td><span class="pill pill-kl1">KL1</span></td>
@@ -1260,7 +1275,7 @@ Stanmiyamoto@gmail.com</td>
   <td><span class="src-badge" style="background:#f3f4f6;color:#374151">News</span> Big Island Video News</td>
   <td><span class="gauge-type-tag" style="color:#1d5fa8">USGS</span><br><span class="gauge-id">USGS-16770500</span><br><small style="color:#666">Paauau Gulch at Pahala</small></td>
   <td class="dist-cell"><strong style="font-weight:700">~1.1 mi</strong></td>
-  <td style="text-align:center"><span class="conf-pill" style="background:#fef9c3;color:#854d0e">Street</span></td>
+  <td style="text-align:center"><span class="conf-pill" style="background:#bbf7d0;color:#166534">Street</span></td>
 </tr>
 <tr data-storm="KL1" data-island="Maui" data-dist="0.565" data-gap="0">
   <td><span class="pill pill-kl1">KL1</span></td>
@@ -1271,7 +1286,7 @@ Stanmiyamoto@gmail.com</td>
   <td><span class="src-badge" style="background:#f3f4f6;color:#374151">News</span> The Garden Island</td>
   <td><span class="gauge-type-tag" style="color:#1d5fa8">USGS</span><br><span class="gauge-id">USGS-16638500</span><br><small style="color:#666">Kahoma Stream at Lahaina</small></td>
   <td class="dist-cell"><strong style="font-weight:700">~0.6 mi</strong></td>
-  <td style="text-align:center"><span class="conf-pill" style="background:#ffedd5;color:#c2410c">Area</span></td>
+  <td style="text-align:center"><span class="conf-pill" style="background:#fef9c3;color:#854d0e">Area</span></td>
 </tr>
 <tr data-storm="KL1" data-island="Oahu" data-dist="0.815" data-gap="0">
   <td><span class="pill pill-kl1">KL1</span></td>
@@ -1282,7 +1297,7 @@ Stanmiyamoto@gmail.com</td>
   <td><span class="src-badge" style="background:#fef3c7;color:#92400e">HDOT</span> HIDOT</td>
   <td><span class="gauge-type-tag" style="color:#1d5fa8">USGS</span><br><span class="gauge-id">USGS-16294900</span><br><small style="color:#666">Waikane Str at alt 75 ft at Waikane, Oahu</small></td>
   <td class="dist-cell"><strong style="font-weight:700">~0.8 mi</strong></td>
-  <td style="text-align:center"><span class="conf-pill" style="background:#fef9c3;color:#854d0e">Street</span></td>
+  <td style="text-align:center"><span class="conf-pill" style="background:#bbf7d0;color:#166534">Street</span></td>
 </tr>
 <tr data-storm="KL1" data-island="Oahu" data-dist="1.78" data-gap="0">
   <td><span class="pill pill-kl1">KL1</span></td>
@@ -1306,7 +1321,7 @@ Do</td>
   <td><span class="src-badge" style="background:#f3f4f6;color:#374151">News</span> Maui Now</td>
   <td><span class="gauge-type-tag" style="color:#1d5fa8">USGS</span><br><span class="gauge-id">USGS-16638500</span><br><small style="color:#666">Kahoma Stream at Lahaina</small></td>
   <td class="dist-cell"><strong style="font-weight:700">~1.0 mi</strong></td>
-  <td style="text-align:center"><span class="conf-pill" style="background:#fef9c3;color:#854d0e">Street</span></td>
+  <td style="text-align:center"><span class="conf-pill" style="background:#bbf7d0;color:#166534">Street</span></td>
 </tr>
 <tr data-storm="KL1" data-island="Maui" data-dist="1.456" data-gap="0">
   <td><span class="pill pill-kl1">KL1</span></td>
@@ -1317,7 +1332,7 @@ Do</td>
   <td><span class="src-badge" style="background:#fef3c7;color:#92400e">HDOT</span> HIDOT (@DOTHawaii)</td>
   <td><span class="gauge-type-tag" style="color:#1d5fa8">USGS</span><br><span class="gauge-id">USGS-16647900</span><br><small style="color:#666">Waikapu Str US of S Waikapu Dt intake</small></td>
   <td class="dist-cell"><strong style="font-weight:700">~1.5 mi</strong></td>
-  <td style="text-align:center"><span class="conf-pill" style="background:#fef9c3;color:#854d0e">Street</span></td>
+  <td style="text-align:center"><span class="conf-pill" style="background:#bbf7d0;color:#166534">Street</span></td>
 </tr>
 <tr data-storm="KL1" data-island="Maui" data-dist="0.083" data-gap="0">
   <td><span class="pill pill-kl1">KL1</span></td>
@@ -1339,7 +1354,7 @@ Do</td>
   <td><span class="src-badge" style="background:#f3f4f6;color:#374151">News</span> Maui Now</td>
   <td><span class="gauge-type-tag" style="color:#1d5fa8">USGS</span><br><span class="gauge-id">USGS-16638500</span><br><small style="color:#666">Kahoma Stream at Lahaina</small></td>
   <td class="dist-cell"><strong style="font-weight:700">~1.0 mi</strong></td>
-  <td style="text-align:center"><span class="conf-pill" style="background:#fef9c3;color:#854d0e">Street</span></td>
+  <td style="text-align:center"><span class="conf-pill" style="background:#bbf7d0;color:#166534">Street</span></td>
 </tr>
 <tr data-storm="KL1" data-island="Oahu" data-dist="1.119" data-gap="0">
   <td><span class="pill pill-kl1">KL1</span></td>
@@ -1350,7 +1365,7 @@ Do</td>
   <td><span class="src-badge" style="background:#fef3c7;color:#92400e">HDOT</span> HIDOT (@DOTHawaii)</td>
   <td><span class="gauge-type-tag" style="color:#7611FF">Hohonu</span><br><span class="gauge-id">hohonu-109</span><br><small style="color:#666">Keiki O Ka Aina, Waiawa Wetland</small></td>
   <td class="dist-cell"><strong style="font-weight:700">~1.1 mi</strong></td>
-  <td style="text-align:center"><span class="conf-pill" style="background:#fef9c3;color:#854d0e">Street</span></td>
+  <td style="text-align:center"><span class="conf-pill" style="background:#bbf7d0;color:#166534">Street</span></td>
 </tr>
 <tr data-storm="KL1" data-island="Maui" data-dist="0.756" data-gap="0">
   <td><span class="pill pill-kl1">KL1</span></td>
@@ -1361,7 +1376,7 @@ Do</td>
   <td><span class="src-badge" style="background:#fef3c7;color:#92400e">HDOT</span> HIDOT (@DOTHawaii)</td>
   <td><span class="gauge-type-tag" style="color:#0f8a5f">NOAA</span><br><span class="gauge-id">NOAA-1615680</span><br><small style="color:#666">Kahului, Kahului Harbor</small></td>
   <td class="dist-cell"><strong style="font-weight:700">~0.8 mi</strong></td>
-  <td style="text-align:center"><span class="conf-pill" style="background:#fef9c3;color:#854d0e">Street</span></td>
+  <td style="text-align:center"><span class="conf-pill" style="background:#bbf7d0;color:#166534">Street</span></td>
 </tr>
 <tr data-storm="KL1" data-island="Maui" data-dist="0.911" data-gap="0">
   <td><span class="pill pill-kl1">KL1</span></td>
@@ -1372,7 +1387,7 @@ Do</td>
   <td><span class="src-badge" style="background:#fef3c7;color:#92400e">HDOT</span> HIDOT (@DOTHawaii)</td>
   <td><span class="gauge-type-tag" style="color:#1d5fa8">USGS</span><br><span class="gauge-id">USGS-16638500</span><br><small style="color:#666">Kahoma Stream at Lahaina</small></td>
   <td class="dist-cell"><strong style="font-weight:700">~0.9 mi</strong></td>
-  <td style="text-align:center"><span class="conf-pill" style="background:#fef9c3;color:#854d0e">Street</span></td>
+  <td style="text-align:center"><span class="conf-pill" style="background:#bbf7d0;color:#166534">Street</span></td>
 </tr>
 <tr data-storm="KL1" data-island="Oahu" data-dist="3.265" data-gap="1" class="gap-row">
   <td><span class="pill pill-kl1">KL1</span></td>
@@ -1383,7 +1398,7 @@ Do</td>
   <td><span class="src-badge" style="background:#f3f4f6;color:#374151">News</span> KHON2</td>
   <td><span class="gauge-type-tag" style="color:#1d5fa8">USGS</span><br><span class="gauge-id">USGS-16211800</span><br><small style="color:#666">Kaupuni Str at alt 374 ft nr Waianae, Oahu</small></td>
   <td class="dist-cell"><strong style="color:#FF725D;font-weight:700">~3.3 mi</strong></td>
-  <td style="text-align:center"><span class="conf-pill" style="background:#fef9c3;color:#854d0e">Street</span></td>
+  <td style="text-align:center"><span class="conf-pill" style="background:#bbf7d0;color:#166534">Street</span></td>
 </tr>
 <tr data-storm="KL1" data-island="Oahu" data-dist="1.024" data-gap="0">
   <td><span class="pill pill-kl1">KL1</span></td>
@@ -1394,7 +1409,7 @@ Do</td>
   <td><span class="src-badge" style="background:#d1fae5;color:#065f46">311</span> Honolulu 311 Service Request</td>
   <td><span class="gauge-type-tag" style="color:#1d5fa8">USGS</span><br><span class="gauge-id">USGS-16210500</span><br><small style="color:#666">Kaukonahua Str at Waialua, Oahu</small></td>
   <td class="dist-cell"><strong style="font-weight:700">~1.0 mi</strong></td>
-  <td style="text-align:center"><span class="conf-pill" style="background:#fef9c3;color:#854d0e">Street</span></td>
+  <td style="text-align:center"><span class="conf-pill" style="background:#bbf7d0;color:#166534">Street</span></td>
 </tr>
 <tr data-storm="KL1" data-island="Oahu" data-dist="0.83" data-gap="0">
   <td><span class="pill pill-kl1">KL1</span></td>
@@ -1427,7 +1442,7 @@ Do</td>
   <td><span class="src-badge" style="background:#f3f4f6;color:#374151">News</span> Maui Now</td>
   <td><span class="gauge-type-tag" style="color:#1d5fa8">USGS</span><br><span class="gauge-id">USGS-16501200</span><br><small style="color:#666">Oheo Gulch at dam near Kipahulu, Maui</small></td>
   <td class="dist-cell"><strong style="color:#FF725D;font-weight:700">~8.5 mi</strong></td>
-  <td style="text-align:center"><span class="conf-pill" style="background:#fef9c3;color:#854d0e">Street</span></td>
+  <td style="text-align:center"><span class="conf-pill" style="background:#bbf7d0;color:#166534">Street</span></td>
 </tr>
 <tr data-storm="KL1" data-island="Oahu" data-dist="0.258" data-gap="0">
   <td><span class="pill pill-kl1">KL1</span></td>
@@ -1449,7 +1464,7 @@ Do</td>
   <td><span class="src-badge" style="background:#e0f2fe;color:#0369a1">NWS</span> NWS Local Storm Report (PHFO)</td>
   <td><span class="gauge-type-tag" style="color:#7611FF">Hohonu</span><br><span class="gauge-id">hohonu-109</span><br><small style="color:#666">Keiki O Ka Aina, Waiawa Wetland</small></td>
   <td class="dist-cell"><strong style="font-weight:700">~0.6 mi</strong></td>
-  <td style="text-align:center"><span class="conf-pill" style="background:#fef9c3;color:#854d0e">Street</span></td>
+  <td style="text-align:center"><span class="conf-pill" style="background:#bbf7d0;color:#166534">Street</span></td>
 </tr>
 <tr data-storm="KL1" data-island="Oahu" data-dist="0.734" data-gap="0">
   <td><span class="pill pill-kl1">KL1</span></td>
@@ -1460,7 +1475,7 @@ Do</td>
   <td><span class="src-badge" style="background:#e0f2fe;color:#0369a1">NWS</span> NWS Local Storm Report (PHFO)</td>
   <td><span class="gauge-type-tag" style="color:#7611FF">Hohonu</span><br><span class="gauge-id">hohonu-168</span><br><small style="color:#666">Waikalua</small></td>
   <td class="dist-cell"><strong style="font-weight:700">~0.7 mi</strong></td>
-  <td style="text-align:center"><span class="conf-pill" style="background:#fef9c3;color:#854d0e">Street</span></td>
+  <td style="text-align:center"><span class="conf-pill" style="background:#bbf7d0;color:#166534">Street</span></td>
 </tr>
 <tr data-storm="KL1" data-island="Hawaii" data-dist="5.351" data-gap="1" class="gap-row">
   <td><span class="pill pill-kl1">KL1</span></td>
@@ -1471,7 +1486,7 @@ Do</td>
   <td><span class="src-badge" style="background:#e0f2fe;color:#0369a1">NWS</span> NWS Local Storm Report (PHFO)</td>
   <td><span class="gauge-type-tag" style="color:#1d5fa8">USGS</span><br><span class="gauge-id">USGS-16770500</span><br><small style="color:#666">Paauau Gulch at Pahala</small></td>
   <td class="dist-cell"><strong style="color:#FF725D;font-weight:700">~5.4 mi</strong></td>
-  <td style="text-align:center"><span class="conf-pill" style="background:#ffedd5;color:#c2410c">Area</span></td>
+  <td style="text-align:center"><span class="conf-pill" style="background:#fef9c3;color:#854d0e">Area</span></td>
 </tr>
 <tr data-storm="KL1" data-island="Oahu" data-dist="1.233" data-gap="0">
   <td><span class="pill pill-kl1">KL1</span></td>
@@ -1482,7 +1497,7 @@ Do</td>
   <td><span class="src-badge" style="background:#e0f2fe;color:#0369a1">NWS</span> NWS Local Storm Report (PHFO)</td>
   <td><span class="gauge-type-tag" style="color:#1d5fa8">USGS</span><br><span class="gauge-id">USGS-16254000</span><br><small style="color:#666">Makawao Str nr Kailua, Oahu</small></td>
   <td class="dist-cell"><strong style="font-weight:700">~1.2 mi</strong></td>
-  <td style="text-align:center"><span class="conf-pill" style="background:#fef9c3;color:#854d0e">Street</span></td>
+  <td style="text-align:center"><span class="conf-pill" style="background:#bbf7d0;color:#166534">Street</span></td>
 </tr>
 <tr data-storm="KL1" data-island="Oahu" data-dist="1.79" data-gap="0">
   <td><span class="pill pill-kl1">KL1</span></td>
@@ -1493,7 +1508,7 @@ Do</td>
   <td><span class="src-badge" style="background:#e0f2fe;color:#0369a1">NWS</span> NWS Local Storm Report (PHFO)</td>
   <td><span class="gauge-type-tag" style="color:#7611FF">Hohonu</span><br><span class="gauge-id">hohonu-130</span><br><small style="color:#666">Keawawa Wetland</small></td>
   <td class="dist-cell"><strong style="font-weight:700">~1.8 mi</strong></td>
-  <td style="text-align:center"><span class="conf-pill" style="background:#fef9c3;color:#854d0e">Street</span></td>
+  <td style="text-align:center"><span class="conf-pill" style="background:#bbf7d0;color:#166534">Street</span></td>
 </tr>
 <tr data-storm="KL1" data-island="Oahu" data-dist="4.859" data-gap="1" class="gap-row">
   <td><span class="pill pill-kl1">KL1</span></td>
@@ -1504,7 +1519,7 @@ Do</td>
   <td><span class="src-badge" style="background:#e0f2fe;color:#0369a1">NWS</span> NWS Local Storm Report (PHFO)</td>
   <td><span class="gauge-type-tag" style="color:#1d5fa8">USGS</span><br><span class="gauge-id">USGS-16211800</span><br><small style="color:#666">Kaupuni Str at alt 374 ft nr Waianae, Oahu</small></td>
   <td class="dist-cell"><strong style="color:#FF725D;font-weight:700">~4.9 mi</strong></td>
-  <td style="text-align:center"><span class="conf-pill" style="background:#fef9c3;color:#854d0e">Street</span></td>
+  <td style="text-align:center"><span class="conf-pill" style="background:#bbf7d0;color:#166534">Street</span></td>
 </tr>
 <tr data-storm="KL1" data-island="Oahu" data-dist="1.79" data-gap="0">
   <td><span class="pill pill-kl1">KL1</span></td>
@@ -1515,7 +1530,7 @@ Do</td>
   <td><span class="src-badge" style="background:#e0f2fe;color:#0369a1">NWS</span> NWS Local Storm Report (PHFO)</td>
   <td><span class="gauge-type-tag" style="color:#7611FF">Hohonu</span><br><span class="gauge-id">hohonu-130</span><br><small style="color:#666">Keawawa Wetland</small></td>
   <td class="dist-cell"><strong style="font-weight:700">~1.8 mi</strong></td>
-  <td style="text-align:center"><span class="conf-pill" style="background:#fef9c3;color:#854d0e">Street</span></td>
+  <td style="text-align:center"><span class="conf-pill" style="background:#bbf7d0;color:#166534">Street</span></td>
 </tr>
 <tr data-storm="KL1" data-island="Oahu" data-dist="1.227" data-gap="0">
   <td><span class="pill pill-kl1">KL1</span></td>
@@ -1526,7 +1541,7 @@ Do</td>
   <td><span class="src-badge" style="background:#e0f2fe;color:#0369a1">NWS</span> NWS Local Storm Report (PHFO)</td>
   <td><span class="gauge-type-tag" style="color:#1d5fa8">USGS</span><br><span class="gauge-id">USGS-16296500</span><br><small style="color:#666">Kahana Str at alt 30 ft nr Kahana, Oahu</small></td>
   <td class="dist-cell"><strong style="font-weight:700">~1.2 mi</strong></td>
-  <td style="text-align:center"><span class="conf-pill" style="background:#fef9c3;color:#854d0e">Street</span></td>
+  <td style="text-align:center"><span class="conf-pill" style="background:#bbf7d0;color:#166534">Street</span></td>
 </tr>
 <tr data-storm="KL1" data-island="Oahu" data-dist="1.644" data-gap="0">
   <td><span class="pill pill-kl1">KL1</span></td>
@@ -1537,7 +1552,7 @@ Do</td>
   <td><span class="src-badge" style="background:#e0f2fe;color:#0369a1">NWS</span> NWS Local Storm Report (PHFO)</td>
   <td><span class="gauge-type-tag" style="color:#1d5fa8">USGS</span><br><span class="gauge-id">USGS-16249000</span><br><small style="color:#666">Waimanalo Str at Waimanalo, Oahu</small></td>
   <td class="dist-cell"><strong style="font-weight:700">~1.6 mi</strong></td>
-  <td style="text-align:center"><span class="conf-pill" style="background:#fef9c3;color:#854d0e">Street</span></td>
+  <td style="text-align:center"><span class="conf-pill" style="background:#bbf7d0;color:#166534">Street</span></td>
 </tr>
 <tr data-storm="KL1" data-island="Oahu" data-dist="0.245" data-gap="0">
   <td><span class="pill pill-kl1">KL1</span></td>
@@ -1548,7 +1563,7 @@ Do</td>
   <td><span class="src-badge" style="background:#e0f2fe;color:#0369a1">NWS</span> NWS Local Storm Report (PHFO)</td>
   <td><span class="gauge-type-tag" style="color:#1d5fa8">USGS</span><br><span class="gauge-id">USGS-16249000</span><br><small style="color:#666">Waimanalo Str at Waimanalo, Oahu</small></td>
   <td class="dist-cell"><strong style="font-weight:700">~0.2 mi</strong></td>
-  <td style="text-align:center"><span class="conf-pill" style="background:#fef9c3;color:#854d0e">Street</span></td>
+  <td style="text-align:center"><span class="conf-pill" style="background:#bbf7d0;color:#166534">Street</span></td>
 </tr>
 <tr data-storm="KL1" data-island="Oahu" data-dist="0.84" data-gap="0">
   <td><span class="pill pill-kl1">KL1</span></td>
@@ -1570,7 +1585,7 @@ Do</td>
   <td><span class="src-badge" style="background:#e0f2fe;color:#0369a1">NWS</span> NWS Local Storm Report (PHFO)</td>
   <td><span class="gauge-type-tag" style="color:#1d5fa8">USGS</span><br><span class="gauge-id">USGS-16415600</span><br><small style="color:#666">Kawela Gulch near Moku, Molokai</small></td>
   <td class="dist-cell"><strong style="font-weight:700">~0.2 mi</strong></td>
-  <td style="text-align:center"><span class="conf-pill" style="background:#ffedd5;color:#c2410c">Area</span></td>
+  <td style="text-align:center"><span class="conf-pill" style="background:#fef9c3;color:#854d0e">Area</span></td>
 </tr>
 <tr data-storm="KL1" data-island="Oahu" data-dist="1.948" data-gap="0">
   <td><span class="pill pill-kl1">KL1</span></td>
@@ -1581,7 +1596,7 @@ Do</td>
   <td><span class="src-badge" style="background:#e0f2fe;color:#0369a1">NWS</span> NWS Local Storm Report (PHFO)</td>
   <td><span class="gauge-type-tag" style="color:#1d5fa8">USGS</span><br><span class="gauge-id">USGS-16211800</span><br><small style="color:#666">Kaupuni Str at alt 374 ft nr Waianae, Oahu</small></td>
   <td class="dist-cell"><strong style="font-weight:700">~1.9 mi</strong></td>
-  <td style="text-align:center"><span class="conf-pill" style="background:#fef9c3;color:#854d0e">Street</span></td>
+  <td style="text-align:center"><span class="conf-pill" style="background:#bbf7d0;color:#166534">Street</span></td>
 </tr>
 <tr data-storm="KL1" data-island="Oahu" data-dist="1.828" data-gap="0">
   <td><span class="pill pill-kl1">KL1</span></td>
@@ -1603,7 +1618,7 @@ Do</td>
   <td><span class="src-badge" style="background:#e0f2fe;color:#0369a1">NWS</span> NWS Local Storm Report (PHFO)</td>
   <td><span class="gauge-type-tag" style="color:#7611FF">Hohonu</span><br><span class="gauge-id">hohonu-109</span><br><small style="color:#666">Keiki O Ka Aina, Waiawa Wetland</small></td>
   <td class="dist-cell"><strong style="font-weight:700">~0.6 mi</strong></td>
-  <td style="text-align:center"><span class="conf-pill" style="background:#fef9c3;color:#854d0e">Street</span></td>
+  <td style="text-align:center"><span class="conf-pill" style="background:#bbf7d0;color:#166534">Street</span></td>
 </tr>
 <tr data-storm="KL1" data-island="Oahu" data-dist="0.411" data-gap="0">
   <td><span class="pill pill-kl1">KL1</span></td>
@@ -1614,7 +1629,7 @@ Do</td>
   <td><span class="src-badge" style="background:#e0f2fe;color:#0369a1">NWS</span> NWS Local Storm Report (PHFO)</td>
   <td><span class="gauge-type-tag" style="color:#1d5fa8">USGS</span><br><span class="gauge-id">USGS-16238000</span><br><small style="color:#666">Makiki Stream at King St. bridge, Oahu</small></td>
   <td class="dist-cell"><strong style="font-weight:700">~0.4 mi</strong></td>
-  <td style="text-align:center"><span class="conf-pill" style="background:#fef9c3;color:#854d0e">Street</span></td>
+  <td style="text-align:center"><span class="conf-pill" style="background:#bbf7d0;color:#166534">Street</span></td>
 </tr>
 <tr data-storm="KL1" data-island="Oahu" data-dist="1.19" data-gap="0">
   <td><span class="pill pill-kl1">KL1</span></td>
@@ -1625,7 +1640,7 @@ Do</td>
   <td><span class="src-badge" style="background:#e0f2fe;color:#0369a1">NWS</span> NWS Local Storm Report (PHFO)</td>
   <td><span class="gauge-type-tag" style="color:#1d5fa8">USGS</span><br><span class="gauge-id">USGS-16210500</span><br><small style="color:#666">Kaukonahua Str at Waialua, Oahu</small></td>
   <td class="dist-cell"><strong style="font-weight:700">~1.2 mi</strong></td>
-  <td style="text-align:center"><span class="conf-pill" style="background:#fef9c3;color:#854d0e">Street</span></td>
+  <td style="text-align:center"><span class="conf-pill" style="background:#bbf7d0;color:#166534">Street</span></td>
 </tr>
 <tr data-storm="KL1" data-island="Oahu" data-dist="2.277" data-gap="0">
   <td><span class="pill pill-kl1">KL1</span></td>
@@ -1636,7 +1651,7 @@ Do</td>
   <td><span class="src-badge" style="background:#e0f2fe;color:#0369a1">NWS</span> NWS Local Storm Report (PHFO)</td>
   <td><span class="gauge-type-tag" style="color:#1d5fa8">USGS</span><br><span class="gauge-id">USGS-16247100</span><br><small style="color:#666">Manoa-Palolo Drainage Canal at Moiliili, Oahu</small></td>
   <td class="dist-cell"><strong style="font-weight:700">~2.3 mi</strong></td>
-  <td style="text-align:center"><span class="conf-pill" style="background:#fef9c3;color:#854d0e">Street</span></td>
+  <td style="text-align:center"><span class="conf-pill" style="background:#bbf7d0;color:#166534">Street</span></td>
 </tr>
 <tr data-storm="KL1" data-island="Molokai" data-dist="1.905" data-gap="0">
   <td><span class="pill pill-kl1">KL1</span></td>
@@ -1647,7 +1662,7 @@ Do</td>
   <td><span class="src-badge" style="background:#e0f2fe;color:#0369a1">NWS</span> NWS Local Storm Report (PHFO)</td>
   <td><span class="gauge-type-tag" style="color:#1d5fa8">USGS</span><br><span class="gauge-id">USGS-16415600</span><br><small style="color:#666">Kawela Gulch near Moku, Molokai</small></td>
   <td class="dist-cell"><strong style="font-weight:700">~1.9 mi</strong></td>
-  <td style="text-align:center"><span class="conf-pill" style="background:#fef9c3;color:#854d0e">Street</span></td>
+  <td style="text-align:center"><span class="conf-pill" style="background:#bbf7d0;color:#166534">Street</span></td>
 </tr>
 <tr data-storm="KL1" data-island="Maui" data-dist="7.436" data-gap="1" class="gap-row">
   <td><span class="pill pill-kl1">KL1</span></td>
@@ -1658,7 +1673,7 @@ Do</td>
   <td><span class="src-badge" style="background:#e0f2fe;color:#0369a1">NWS</span> NWS Local Storm Report (PHFO)</td>
   <td><span class="gauge-type-tag" style="color:#1d5fa8">USGS</span><br><span class="gauge-id">USGS-16647900</span><br><small style="color:#666">Waikapu Str US of S Waikapu Dt intake</small></td>
   <td class="dist-cell"><strong style="color:#FF725D;font-weight:700">~7.4 mi</strong></td>
-  <td style="text-align:center"><span class="conf-pill" style="background:#fef9c3;color:#854d0e">Street</span></td>
+  <td style="text-align:center"><span class="conf-pill" style="background:#bbf7d0;color:#166534">Street</span></td>
 </tr>
 <tr data-storm="KL1" data-island="Maui" data-dist="1.234" data-gap="0">
   <td><span class="pill pill-kl1">KL1</span></td>
@@ -1669,7 +1684,7 @@ Do</td>
   <td><span class="src-badge" style="background:#fef3c7;color:#92400e">HDOT</span> HIDOT / MEMA</td>
   <td><span class="gauge-type-tag" style="color:#1d5fa8">USGS</span><br><span class="gauge-id">USGS-16647900</span><br><small style="color:#666">Waikapu Str US of S Waikapu Dt intake</small></td>
   <td class="dist-cell"><strong style="font-weight:700">~1.2 mi</strong></td>
-  <td style="text-align:center"><span class="conf-pill" style="background:#fef9c3;color:#854d0e">Street</span></td>
+  <td style="text-align:center"><span class="conf-pill" style="background:#bbf7d0;color:#166534">Street</span></td>
 </tr>
 <tr data-storm="KL1" data-island="Maui" data-dist="0.284" data-gap="0">
   <td><span class="pill pill-kl1">KL1</span></td>
@@ -1680,7 +1695,7 @@ Do</td>
   <td><span class="src-badge" style="background:#fef3c7;color:#92400e">HDOT</span> HIDOT / MEMA</td>
   <td><span class="gauge-type-tag" style="color:#1d5fa8">USGS</span><br><span class="gauge-id">USGS-16605500</span><br><small style="color:#666">Wailuku River at Iao Valley Road</small></td>
   <td class="dist-cell"><strong style="font-weight:700">~0.3 mi</strong></td>
-  <td style="text-align:center"><span class="conf-pill" style="background:#fef9c3;color:#854d0e">Street</span></td>
+  <td style="text-align:center"><span class="conf-pill" style="background:#bbf7d0;color:#166534">Street</span></td>
 </tr>
 <tr data-storm="KL1" data-island="Maui" data-dist="7.436" data-gap="1" class="gap-row">
   <td><span class="pill pill-kl1">KL1</span></td>
@@ -1691,7 +1706,7 @@ Do</td>
   <td><span class="src-badge" style="background:#f3f4f6;color:#374151">News</span> MEMA</td>
   <td><span class="gauge-type-tag" style="color:#1d5fa8">USGS</span><br><span class="gauge-id">USGS-16647900</span><br><small style="color:#666">Waikapu Str US of S Waikapu Dt intake</small></td>
   <td class="dist-cell"><strong style="color:#FF725D;font-weight:700">~7.4 mi</strong></td>
-  <td style="text-align:center"><span class="conf-pill" style="background:#fef9c3;color:#854d0e">Street</span></td>
+  <td style="text-align:center"><span class="conf-pill" style="background:#bbf7d0;color:#166534">Street</span></td>
 </tr>
 <tr data-storm="KL1" data-island="Maui" data-dist="7.299" data-gap="1" class="gap-row">
   <td><span class="pill pill-kl1">KL1</span></td>
@@ -1702,7 +1717,7 @@ Do</td>
   <td><span class="src-badge" style="background:#fef3c7;color:#92400e">HDOT</span> HIDOT</td>
   <td><span class="gauge-type-tag" style="color:#1d5fa8">USGS</span><br><span class="gauge-id">USGS-16552800</span><br><small style="color:#666">Waikamoi Str abv Kula PL intake nr Olinda</small></td>
   <td class="dist-cell"><strong style="color:#FF725D;font-weight:700">~7.3 mi</strong></td>
-  <td style="text-align:center"><span class="conf-pill" style="background:#fef9c3;color:#854d0e">Street</span></td>
+  <td style="text-align:center"><span class="conf-pill" style="background:#bbf7d0;color:#166534">Street</span></td>
 </tr>
 <tr data-storm="KL1" data-island="Oahu" data-dist="1.565" data-gap="0">
   <td><span class="pill pill-kl1">KL1</span></td>
@@ -1713,7 +1728,7 @@ Do</td>
   <td><span class="src-badge" style="background:#e0f2fe;color:#0369a1">NWS</span> NWS Local Storm Report (PHFO)</td>
   <td><span class="gauge-type-tag" style="color:#1d5fa8">USGS</span><br><span class="gauge-id">USGS-16211800</span><br><small style="color:#666">Kaupuni Str at alt 374 ft nr Waianae, Oahu</small></td>
   <td class="dist-cell"><strong style="font-weight:700">~1.6 mi</strong></td>
-  <td style="text-align:center"><span class="conf-pill" style="background:#fef9c3;color:#854d0e">Street</span></td>
+  <td style="text-align:center"><span class="conf-pill" style="background:#bbf7d0;color:#166534">Street</span></td>
 </tr>
 <tr data-storm="KL1" data-island="Oahu" data-dist="0.338" data-gap="0">
   <td><span class="pill pill-kl1">KL1</span></td>
@@ -1735,7 +1750,7 @@ Do</td>
   <td><span class="src-badge" style="background:#e0f2fe;color:#0369a1">NWS</span> NWS Local Storm Report (PHFO)</td>
   <td><span class="gauge-type-tag" style="color:#7611FF">Hohonu</span><br><span class="gauge-id">hohonu-112</span><br><small style="color:#666">Keawanui Loko Iʻa</small></td>
   <td class="dist-cell"><strong style="font-weight:700">~0.8 mi</strong></td>
-  <td style="text-align:center"><span class="conf-pill" style="background:#fef9c3;color:#854d0e">Street</span></td>
+  <td style="text-align:center"><span class="conf-pill" style="background:#bbf7d0;color:#166534">Street</span></td>
 </tr>
 <tr data-storm="KL1" data-island="Oahu" data-dist="0.262" data-gap="0">
   <td><span class="pill pill-kl1">KL1</span></td>
@@ -1746,7 +1761,7 @@ Do</td>
   <td><span class="src-badge" style="background:#e0f2fe;color:#0369a1">NWS</span> NWS Local Storm Report (PHFO)</td>
   <td><span class="gauge-type-tag" style="color:#1d5fa8">USGS</span><br><span class="gauge-id">USGS-16210500</span><br><small style="color:#666">Kaukonahua Str at Waialua, Oahu</small></td>
   <td class="dist-cell"><strong style="font-weight:700">~0.3 mi</strong></td>
-  <td style="text-align:center"><span class="conf-pill" style="background:#fef9c3;color:#854d0e">Street</span></td>
+  <td style="text-align:center"><span class="conf-pill" style="background:#bbf7d0;color:#166534">Street</span></td>
 </tr>
 <tr data-storm="KL1" data-island="Oahu" data-dist="1.233" data-gap="0">
   <td><span class="pill pill-kl1">KL1</span></td>
@@ -1757,7 +1772,7 @@ Do</td>
   <td><span class="src-badge" style="background:#e0f2fe;color:#0369a1">NWS</span> NWS Local Storm Report (PHFO)</td>
   <td><span class="gauge-type-tag" style="color:#1d5fa8">USGS</span><br><span class="gauge-id">USGS-16254000</span><br><small style="color:#666">Makawao Str nr Kailua, Oahu</small></td>
   <td class="dist-cell"><strong style="font-weight:700">~1.2 mi</strong></td>
-  <td style="text-align:center"><span class="conf-pill" style="background:#fef9c3;color:#854d0e">Street</span></td>
+  <td style="text-align:center"><span class="conf-pill" style="background:#bbf7d0;color:#166534">Street</span></td>
 </tr>
 <tr data-storm="KL1" data-island="Oahu" data-dist="2.774" data-gap="0">
   <td><span class="pill pill-kl1">KL1</span></td>
@@ -1768,7 +1783,7 @@ Do</td>
   <td><span class="src-badge" style="background:#d1fae5;color:#065f46">311</span> Honolulu 311 Service Request</td>
   <td><span class="gauge-type-tag" style="color:#1d5fa8">USGS</span><br><span class="gauge-id">USGS-16211800</span><br><small style="color:#666">Kaupuni Str at alt 374 ft nr Waianae, Oahu</small></td>
   <td class="dist-cell"><strong style="font-weight:700">~2.8 mi</strong></td>
-  <td style="text-align:center"><span class="conf-pill" style="background:#ffedd5;color:#c2410c">Area</span></td>
+  <td style="text-align:center"><span class="conf-pill" style="background:#fef9c3;color:#854d0e">Area</span></td>
 </tr>
 <tr data-storm="KL1" data-island="Oahu" data-dist="2.329" data-gap="0">
   <td><span class="pill pill-kl1">KL1</span></td>
@@ -1790,7 +1805,7 @@ Do</td>
   <td><span class="src-badge" style="background:#e0f2fe;color:#0369a1">NWS</span> NWS Local Storm Report (PHFO)</td>
   <td><span class="gauge-type-tag" style="color:#1d5fa8">USGS</span><br><span class="gauge-id">USGS-16264600</span><br><small style="color:#666">Kawainui Marsh nr levee sta 15+00, Oahu</small></td>
   <td class="dist-cell"><strong style="font-weight:700">~1.0 mi</strong></td>
-  <td style="text-align:center"><span class="conf-pill" style="background:#fef9c3;color:#854d0e">Street</span></td>
+  <td style="text-align:center"><span class="conf-pill" style="background:#bbf7d0;color:#166534">Street</span></td>
 </tr>
 <tr data-storm="KL1" data-island="Oahu" data-dist="0.621" data-gap="0">
   <td><span class="pill pill-kl1">KL1</span></td>
@@ -1801,7 +1816,7 @@ Do</td>
   <td><span class="src-badge" style="background:#e0f2fe;color:#0369a1">NWS</span> NWS Local Storm Report (PHFO)</td>
   <td><span class="gauge-type-tag" style="color:#1d5fa8">USGS</span><br><span class="gauge-id">USGS-16210500</span><br><small style="color:#666">Kaukonahua Str at Waialua, Oahu</small></td>
   <td class="dist-cell"><strong style="font-weight:700">~0.6 mi</strong></td>
-  <td style="text-align:center"><span class="conf-pill" style="background:#ffedd5;color:#c2410c">Area</span></td>
+  <td style="text-align:center"><span class="conf-pill" style="background:#fef9c3;color:#854d0e">Area</span></td>
 </tr>
 <tr data-storm="KL1" data-island="Oahu" data-dist="1.286" data-gap="0">
   <td><span class="pill pill-kl1">KL1</span></td>
@@ -1812,7 +1827,7 @@ Do</td>
   <td><span class="src-badge" style="background:#e0f2fe;color:#0369a1">NWS</span> NWS Local Storm Report (PHFO)</td>
   <td><span class="gauge-type-tag" style="color:#1d5fa8">USGS</span><br><span class="gauge-id">USGS-16210000</span><br><small style="color:#666">Wahiawa Reservoir at Spillway at Wahiawa, Oahu</small></td>
   <td class="dist-cell"><strong style="font-weight:700">~1.3 mi</strong></td>
-  <td style="text-align:center"><span class="conf-pill" style="background:#ffedd5;color:#c2410c">Area</span></td>
+  <td style="text-align:center"><span class="conf-pill" style="background:#fef9c3;color:#854d0e">Area</span></td>
 </tr>
 <tr data-storm="KL1" data-island="Maui" data-dist="0.968" data-gap="0">
   <td><span class="pill pill-kl1">KL1</span></td>
@@ -1823,7 +1838,7 @@ Do</td>
   <td><span class="src-badge" style="background:#e0f2fe;color:#0369a1">NWS</span> NWS Local Storm Report (PHFO)</td>
   <td><span class="gauge-type-tag" style="color:#0f8a5f">NOAA</span><br><span class="gauge-id">NOAA-1615680</span><br><small style="color:#666">Kahului, Kahului Harbor</small></td>
   <td class="dist-cell"><strong style="font-weight:700">~1.0 mi</strong></td>
-  <td style="text-align:center"><span class="conf-pill" style="background:#fef9c3;color:#854d0e">Street</span></td>
+  <td style="text-align:center"><span class="conf-pill" style="background:#bbf7d0;color:#166534">Street</span></td>
 </tr>
 <tr data-storm="KL1" data-island="Oahu" data-dist="0.168" data-gap="0">
   <td><span class="pill pill-kl1">KL1</span></td>
@@ -1884,12 +1899,12 @@ function distColor(dist){
 }
 
 const CONF_META={
-  'user_confirmed':    ['Precise','#dcfce7','#14532d'],
-  'ROOFTOP':           ['Precise','#dcfce7','#14532d'],
-  'RANGE_INTERPOLATED':['Good',   '#bbf7d0','#166534'],
-  'GEOMETRIC_CENTER':  ['Street', '#fef9c3','#854d0e'],
-  'APPROXIMATE':       ['Area',   '#ffedd5','#c2410c'],
-  'static':            ['Area',   '#ffedd5','#c2410c'],
+  'user_confirmed':    ['Precise',    '#dcfce7','#14532d'],
+  'ROOFTOP':           ['Precise',    '#dcfce7','#14532d'],
+  'RANGE_INTERPOLATED':['Street',     '#bbf7d0','#166534'],
+  'GEOMETRIC_CENTER':  ['Street',     '#bbf7d0','#166534'],
+  'APPROXIMATE':       ['Area',       '#fef9c3','#854d0e'],
+  'static':            ['Unverified', '#ffedd5','#c2410c'],
 };
 function confPill(ct){
   const [label,bg,fg]=CONF_META[ct]||CONF_META['APPROXIMATE'];
