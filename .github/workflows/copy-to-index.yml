@@ -5,21 +5,27 @@ on:
     branches:
       - main
 
+permissions:
+  contents: write
+
 jobs:
   copy-file:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Download repository
+      - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Copy your HTML file
+      - name: List files (debug)
+        run: ls
+
+      - name: Copy HTML to index.html
         run: cp Kona_Low_Coverage_Gaps.html index.html
 
-      - name: Save the new file
+      - name: Commit index.html
         run: |
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
           git add index.html
-          git diff --cached --quiet || git commit -m "Update index.html"
+          git commit -m "Update index.html" || echo "No changes to commit"
           git push
